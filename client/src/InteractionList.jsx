@@ -11,6 +11,7 @@ import {
   TableRow,
   Paper,
   Button,
+  Box,
   IconButton,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
@@ -57,18 +58,20 @@ function InteractionList() {
   }
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Interaction Management
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        component={RouterLink}
-        to="/interactions/new"
-        sx={{ mb: 2 }}
-      >
-        Add New Interaction
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Interaction Management
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          component={RouterLink}
+          to="/interactions/new"
+          sx={{ mb: 2 }}
+        >
+          Add New Interaction
+        </Button>
+      </Box>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -78,6 +81,7 @@ function InteractionList() {
               <TableCell>Type</TableCell>
               <TableCell>Details</TableCell>
               <TableCell>Restaurant ID</TableCell>
+              <TableCell>Contact ID</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -89,6 +93,8 @@ function InteractionList() {
                 <TableCell>{i.type}</TableCell>
                 <TableCell>{i.details}</TableCell>
                 <TableCell>{i.restaurant_id}</TableCell>
+                <TableCell>{i.contact_id}</TableCell>
+
                 <TableCell>
                   <IconButton
                     component={RouterLink}

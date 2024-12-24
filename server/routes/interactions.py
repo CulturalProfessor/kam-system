@@ -15,6 +15,7 @@ def get_interactions():
             "type": i.type.value,
             "details": i.details,
             "restaurant_id": i.restaurant_id,
+            "contact_id": i.contact_id,
         }
         for i in interactions
     ]
@@ -40,6 +41,7 @@ def create_interaction():
             type=interaction_type,
             details=data.get("details"),
             restaurant_id=data.get("restaurant_id"),
+            contact_id=data.get("contact_id"),
         )
         db.session.add(new_interaction)
         db.session.commit()
@@ -63,6 +65,7 @@ def get_interaction_by_id(interaction_id):
                 "type": interaction.type,
                 "details": interaction.details,
                 "restaurant_id": interaction.restaurant_id,
+                "contact_id": interaction.contact_id,
             }
         ),
         200,

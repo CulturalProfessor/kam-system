@@ -10,6 +10,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Box,
   Paper,
   IconButton,
 } from "@mui/material";
@@ -58,20 +59,21 @@ function RestaurantList() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Lead Management: Restaurants
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Lead Management: Restaurants
+        </Typography>
 
-      <Button
-        variant="contained"
-        color="primary"
-        component={RouterLink}
-        to="/restaurants/new"
-        sx={{ mb: 2 }}
-      >
-        Add New Restaurant
-      </Button>
-
+        <Button
+          variant="contained"
+          color="primary"
+          component={RouterLink}
+          to="/restaurants/new"
+          sx={{ mb: 2 }}
+        >
+          Add New Restaurant
+        </Button>
+      </Box>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -80,6 +82,7 @@ function RestaurantList() {
               <TableCell>Name</TableCell>
               <TableCell>Address</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Last Call Date</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -90,6 +93,7 @@ function RestaurantList() {
                 <TableCell>{r.name}</TableCell>
                 <TableCell>{r.address}</TableCell>
                 <TableCell>{r.status}</TableCell>
+                <TableCell>{r.last_call_date.split("T")[0] || "N/A"}</TableCell>
                 <TableCell>
                   <IconButton
                     component={RouterLink}

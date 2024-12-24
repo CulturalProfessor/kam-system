@@ -54,7 +54,9 @@ class Interaction(db.Model):
     interaction_date = db.Column(db.DateTime, nullable=False)
     type = db.Column(Enum(InteractionType), nullable=False)
     details = db.Column(db.Text)
-
+    contact_id = db.Column(
+        db.Integer, db.ForeignKey("contacts.id"), nullable=False
+    )
     restaurant_id = db.Column(
         db.Integer, db.ForeignKey("restaurants.id"), nullable=False
     )

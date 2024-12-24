@@ -11,6 +11,7 @@ import {
   Paper,
   Button,
   IconButton,
+  Box,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
@@ -55,41 +56,46 @@ function ContactList() {
   if (loading) {
     return <Loader />;
   }
-
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Contact Management
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Contact Management
+        </Typography>
 
-      <Button
-        variant="contained"
-        color="primary"
-        component={RouterLink}
-        to="/contacts/new"
-        sx={{ mb: 2 }}
-      >
-        Add New Contact
-      </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          component={RouterLink}
+          to="/contacts/new"
+          sx={{ mb: 2 }}
+        >
+          Add New Contact
+        </Button>
+      </Box>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Role</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
+              <TableCell>Restaurant ID</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {contacts.map((c) => (
               <TableRow key={c.id}>
+                <TableCell>{c.id}</TableCell>
                 <TableCell>{c.name}</TableCell>
                 <TableCell>{c.role}</TableCell>
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.phone}</TableCell>
+                <TableCell>{c.restaurant_id}</TableCell>
                 <TableCell>
                   <IconButton
                     component={RouterLink}

@@ -27,11 +27,12 @@ function InteractionForm({ isEdit }) {
     type: "",
     details: "",
     restaurant_id: "",
+    contact_id: "",
   });
   const [restaurants, setRestaurants] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [error, setError] = useState(null);
 
-  // Fetch existing interaction data if in edit mode
   useEffect(() => {
     if (isEdit) {
       fetch(`${SERVER_URL}/api/interactions/${id}`)
@@ -41,17 +42,29 @@ function InteractionForm({ isEdit }) {
     }
   }, [id, isEdit]);
 
-  // Fetch the list of restaurants
   useEffect(() => {
     fetch(`${SERVER_URL}/api/restaurants`)
       .then((response) => response.json())
       .then((data) => setRestaurants(data))
       .catch((error) => console.error("Error fetching restaurants:", error));
+
+    fetch(`${SERVER_URL}/api/contacts`)
+      .then((response) => response.json())
+      .then((data) => setContacts(data))
+      .catch((error) => console.error("Error fetching contacts:", error));
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "restaurant_id") {
+      setFormData((prev) => ({
+        ...prev,
+        restaurant_id: value,
+        contact_id: "",
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -84,6 +97,10 @@ function InteractionForm({ isEdit }) {
     return <Loader />;
   }
 
+  const filteredContacts = contacts.filter(
+    (contact) => contact.restaurant_id === Number(formData.restaurant_id)
+  );
+
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
@@ -101,6 +118,7 @@ function InteractionForm({ isEdit }) {
           InputLabelProps={{ shrink: true }}
           margin="normal"
         />
+
         <FormControl fullWidth margin="normal">
           <InputLabel>Interaction Type</InputLabel>
           <Select
@@ -117,6 +135,7 @@ function InteractionForm({ isEdit }) {
             <MenuItem value="Follow-Up">Follow-Up</MenuItem>
           </Select>
         </FormControl>
+
         <TextField
           fullWidth
           label="Details"
@@ -125,6 +144,7 @@ function InteractionForm({ isEdit }) {
           onChange={handleChange}
           margin="normal"
         />
+
         <FormControl fullWidth margin="normal">
           <InputLabel>Restaurant ID</InputLabel>
           <Select
@@ -141,11 +161,31 @@ function InteractionForm({ isEdit }) {
             ))}
           </Select>
         </FormControl>
+
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Contact ID</InputLabel>
+          <Select
+            name="contact_id"
+            value={formData.contact_id}
+            onChange={handleChange}
+            required
+            sx={{ marginTop: 1 }}
+            disabled={!formData.restaurant_id} // optional, disable if no restaurant chosen
+          >
+            {filteredContacts.map((contact) => (
+              <MenuItem key={contact.id} value={contact.id}>
+                {contact.id} - {contact.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
             {error}
           </Typography>
         )}
+
         <Button
           type="submit"
           variant="contained"

@@ -127,6 +127,16 @@ function RestaurantForm({ isEdit }) {
             <MenuItem value="Monthly">Monthly</MenuItem>
           </Select>
         </FormControl>
+        <TextField
+          fullWidth
+          label="Last Call Date"
+          name="last_call_date"
+          type="date"
+          value={formData.last_call_date || ""}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          margin="normal"
+        />
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
             {error}
