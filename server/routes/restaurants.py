@@ -1,7 +1,5 @@
-# routes/restaurants.py
-
 from flask import Blueprint, request, jsonify
-from models import db, Restaurant, Contact, Interaction
+from models import db, Restaurant
 from datetime import datetime
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)

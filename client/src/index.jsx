@@ -1,16 +1,32 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import RestaurantList from "./RestaurantList";
-import AddRestaurant from "./AddRestaurant";
-import UpdateRestaurant from "./UpdateRestaurant";
-// import "./index.css";
+import RestaurantForm from "./RestaurantForm";
+import ContactList from "./ContactList";
+import ContactForm from "./ContactForm";
+import Navbar from "./Navbar";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<RestaurantList />} />
-      <Route path="/new" element={<AddRestaurant />} />
-      <Route path="/update/:id" element={<UpdateRestaurant />} />
-    </Routes>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<RestaurantList />} />
+        <Route
+          path="/restaurants/new"
+          element={<RestaurantForm isEdit={false} />}
+        />
+        <Route
+          path="/restaurants/edit/:id"
+          element={<RestaurantForm isEdit={true} />}
+        />
+        <Route path="/contacts" element={<ContactList />} />
+        <Route path="/contacts/new" element={<ContactForm isEdit={false} />} />
+        <Route
+          path="/contacts/edit/:id"
+          element={<ContactForm isEdit={true} />}
+        />
+      </Routes>
+    </Router>
   );
 }
 

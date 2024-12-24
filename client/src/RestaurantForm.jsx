@@ -1,10 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Container, TextField, Button, Typography } from "@mui/material";
+import Loader from "./utils/Loader";
+import PropTypes from "prop-types";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
-function AddRestaurant() {
+RestaurantForm.propTypes = {
+  isEdit: PropTypes.bool,
+};
+
+function RestaurantForm({ isEdit }) {
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -14,6 +21,15 @@ function AddRestaurant() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (isEdit) {
+      fetch(`${SERVER_URL}/api/restaurants/${id}`)
+        .then((response) => response.json())
+        .then((data) => setFormData(data))
+        .catch((err) => setError(err.message));
+    }
+  }, [id, isEdit]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -21,9 +37,14 @@ function AddRestaurant() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const url = isEdit
+      ? `${SERVER_URL}/api/restaurants/${id}`
+      : `${SERVER_URL}/api/restaurants`;
+    const method = isEdit ? "PUT" : "POST";
+
     try {
-      const response = await fetch(`${SERVER_URL}/api/restaurants`, {
-        method: "POST",
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
@@ -31,17 +52,23 @@ function AddRestaurant() {
         navigate("/");
       } else {
         const errData = await response.json();
-        setError(errData.error || "Error adding restaurant");
+        setError(
+          errData.error || `Error ${isEdit ? "updating" : "adding"} restaurant`
+        );
       }
     } catch (err) {
       setError(err.message);
     }
   };
 
+  if (isEdit && !formData.name) {
+    return <Loader />;
+  }
+
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Add New Restaurant
+        {isEdit ? "Update Restaurant" : "Add New Restaurant"}
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -89,11 +116,11 @@ function AddRestaurant() {
           color="primary"
           sx={{ mt: 2 }}
         >
-          Submit
+          {isEdit ? "Update" : "Submit"}
         </Button>
       </form>
     </Container>
   );
 }
 
-export default AddRestaurant;
+export default RestaurantForm;

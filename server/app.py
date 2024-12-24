@@ -4,6 +4,9 @@ from config import Config
 from models import db
 from routes.restaurants import restaurant_bp
 from flask_cors import CORS
+from routes.restaurants import restaurant_bp
+from routes.contacts import contact_bp
+from routes.interactions import interaction_bp
 
 
 def create_app():
@@ -15,6 +18,8 @@ def create_app():
     migrate = Migrate(app, db)
 
     app.register_blueprint(restaurant_bp, url_prefix="/api")
+    app.register_blueprint(contact_bp, url_prefix="/api")
+    app.register_blueprint(interaction_bp, url_prefix="/api")
 
     @app.route("/", methods=["GET"])
     def hello_world():

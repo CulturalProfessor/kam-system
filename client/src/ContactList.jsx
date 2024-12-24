@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
 import {
   Container,
   Typography,
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -11,27 +9,29 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
   IconButton,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
 import Loader from "./utils/Loader";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
-function RestaurantList() {
-  const [restaurants, setRestaurants] = useState([]);
+function ContactList() {
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this restaurant?")) {
+    if (window.confirm("Are you sure you want to delete this contact?")) {
       try {
-        const response = await fetch(`${SERVER_URL}/api/restaurants/${id}`, {
+        const response = await fetch(`${SERVER_URL}/api/contacts/${id}`, {
           method: "DELETE",
         });
         if (response.ok) {
-          setRestaurants((prev) => prev.filter((r) => r.id !== id));
+          setContacts((prev) => prev.filter((c) => c.id !== id));
         } else {
-          console.error("Failed to delete restaurant");
+          console.error("Failed to delete contact");
         }
       } catch (err) {
         console.error(err);
@@ -40,14 +40,14 @@ function RestaurantList() {
   };
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/restaurants`)
+    fetch(`${SERVER_URL}/api/contacts`)
       .then((response) => response.json())
       .then((data) => {
-        setRestaurants(data);
+        setContacts(data);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching restaurants:", error);
+        console.error("Error fetching contacts:", error);
         setLoading(false);
       });
   }, []);
@@ -59,46 +59,46 @@ function RestaurantList() {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Lead Management: Restaurants
+        Contact Management
       </Typography>
 
       <Button
         variant="contained"
         color="primary"
         component={RouterLink}
-        to="/restaurants/new"
+        to="/contacts/new"
         sx={{ mb: 2 }}
       >
-        Add New Restaurant
+        Add New Contact
       </Button>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Phone</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {restaurants.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell>{r.id}</TableCell>
-                <TableCell>{r.name}</TableCell>
-                <TableCell>{r.address}</TableCell>
-                <TableCell>{r.status}</TableCell>
+            {contacts.map((c) => (
+              <TableRow key={c.id}>
+                <TableCell>{c.name}</TableCell>
+                <TableCell>{c.role}</TableCell>
+                <TableCell>{c.email}</TableCell>
+                <TableCell>{c.phone}</TableCell>
                 <TableCell>
                   <IconButton
                     component={RouterLink}
-                    to={`/restaurants/edit/${r.id}`}
+                    to={`/contacts/edit/${c.id}`}
                     color="primary"
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(r.id)} color="error">
+                  <IconButton onClick={() => handleDelete(c.id)} color="error">
                     <Delete />
                   </IconButton>
                 </TableCell>
@@ -111,4 +111,4 @@ function RestaurantList() {
   );
 }
 
-export default RestaurantList;
+export default ContactList;
