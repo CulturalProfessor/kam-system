@@ -26,6 +26,9 @@ function RestaurantForm({ isEdit }) {
     address: "",
     status: "New",
     call_frequency: "Weekly",
+    last_call_date: "",
+    revenue: 0,
+    notes: "",
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -68,6 +71,18 @@ function RestaurantForm({ isEdit }) {
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleAutofill = () => {
+    setFormData({
+      name: "Sample Restaurant",
+      address: "123 Test Street, Test City",
+      status: "Contacted",
+      call_frequency: "Weekly",
+      last_call_date: new Date().toISOString().split("T")[0],
+      revenue: 50000,
+      notes: "This is a sample note for testing autofill functionality.",
+    });
   };
 
   if (isEdit && !formData.name) {
@@ -137,6 +152,23 @@ function RestaurantForm({ isEdit }) {
           InputLabelProps={{ shrink: true }}
           margin="normal"
         />
+        <TextField
+          fullWidth
+          label="Revenue"
+          name="revenue"
+          type="number"
+          value={formData.revenue}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="Notes"
+          name="notes"
+          value={formData.notes}
+          onChange={handleChange}
+          margin="normal"
+        />
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
             {error}
@@ -146,9 +178,17 @@ function RestaurantForm({ isEdit }) {
           type="submit"
           variant="contained"
           color="primary"
-          sx={{ mt: 2 }}
+          sx={{ mt: 2, mr: 2 }}
         >
           {isEdit ? "Update" : "Submit"}
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          sx={{ mt: 2 }}
+          onClick={handleAutofill}
+        >
+          Autofill
         </Button>
       </form>
     </Container>

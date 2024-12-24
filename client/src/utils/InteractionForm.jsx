@@ -25,7 +25,9 @@ function InteractionForm({ isEdit }) {
   const [formData, setFormData] = useState({
     interaction_date: "",
     type: "",
+    outcome: "",
     details: "",
+    duration_minutes: 0,
     restaurant_id: "",
     contact_id: "",
   });
@@ -93,6 +95,24 @@ function InteractionForm({ isEdit }) {
     }
   };
 
+  const handleAutofill = () => {
+    const randomIndex = Math.floor(Math.random() * restaurants.length);
+    const randomRestaurant = restaurants[randomIndex];
+    const contactsForRestaurant = contacts.filter(
+      (contact) => contact.restaurant_id === randomRestaurant.id
+    );
+
+    setFormData({
+      interaction_date: new Date().toISOString().split("T")[0],
+      type: "Call",
+      outcome: "Successful",
+      details: "Sample interaction details",
+      duration_minutes: 30,
+      restaurant_id: randomRestaurant.id,
+      contact_id: contactsForRestaurant[0].id,
+    });
+  };
+
   if (isEdit && !formData.type) {
     return <Loader />;
   }
@@ -136,6 +156,21 @@ function InteractionForm({ isEdit }) {
           </Select>
         </FormControl>
 
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Outcome</InputLabel>
+          <Select
+            name="outcome"
+            value={formData.outcome}
+            onChange={handleChange}
+            required
+            sx={{ marginTop: 1 }}
+          >
+            <MenuItem value="Successful">Success</MenuItem>
+            <MenuItem value="Needs Follow-Up">Needs Follow-Up</MenuItem>
+            <MenuItem value="No Response">No Response</MenuItem>
+            <MenuItem value="Cancelled">Cancelled</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           fullWidth
           label="Details"
@@ -145,6 +180,15 @@ function InteractionForm({ isEdit }) {
           margin="normal"
         />
 
+        <TextField
+          fullWidth
+          label="Duration (minutes)"
+          name="duration_minutes"
+          value={formData.duration_minutes}
+          onChange={handleChange}
+          type="number"
+          margin="normal"
+        />
         <FormControl fullWidth margin="normal">
           <InputLabel>Restaurant ID</InputLabel>
           <Select
@@ -170,7 +214,7 @@ function InteractionForm({ isEdit }) {
             onChange={handleChange}
             required
             sx={{ marginTop: 1 }}
-            disabled={!formData.restaurant_id} // optional, disable if no restaurant chosen
+            disabled={!formData.restaurant_id}
           >
             {filteredContacts.map((contact) => (
               <MenuItem key={contact.id} value={contact.id}>
@@ -193,6 +237,14 @@ function InteractionForm({ isEdit }) {
           sx={{ mt: 2 }}
         >
           {isEdit ? "Update" : "Submit"}
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          sx={{ mt: 2, ml: 2 }}
+          onClick={handleAutofill}
+        >
+          Autofill
         </Button>
       </form>
     </Container>

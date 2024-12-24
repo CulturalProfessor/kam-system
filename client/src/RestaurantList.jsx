@@ -13,6 +13,7 @@ import {
   Box,
   Paper,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import Loader from "./utils/Loader";
@@ -53,13 +54,18 @@ function RestaurantList() {
       });
   }, []);
 
+  const trimText = (text, length = 30) => {
+    if (!text) return "N/A";
+    return text.length > length ? `${text.slice(0, length)}...` : text;
+  };
+
   if (loading) {
     return <Loader />;
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Lead Management: Restaurants
         </Typography>
@@ -69,13 +75,12 @@ function RestaurantList() {
           color="primary"
           component={RouterLink}
           to="/restaurants/new"
-          sx={{ mb: 2 }}
         >
           Add New Restaurant
         </Button>
       </Box>
       <TableContainer component={Paper}>
-        <Table>
+        <Table sx={{ minWidth: 1000 }}>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -83,17 +88,25 @@ function RestaurantList() {
               <TableCell>Address</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Last Call Date</TableCell>
+              <TableCell>Revenue (INR)</TableCell>
+              <TableCell>Notes</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {restaurants.map((r) => (
-              <TableRow key={r.id}>
+              <TableRow key={r.id} sx={{ "& > *": { whiteSpace: "nowrap" } }}>
                 <TableCell>{r.id}</TableCell>
                 <TableCell>{r.name}</TableCell>
                 <TableCell>{r.address}</TableCell>
                 <TableCell>{r.status}</TableCell>
                 <TableCell>{r.last_call_date.split("T")[0] || "N/A"}</TableCell>
+                <TableCell>{r.revenue}</TableCell>
+                <TableCell>
+                  <Tooltip title={r.notes || "No notes available"}>
+                    <span>{trimText(r.notes)}</span>
+                  </Tooltip>
+                </TableCell>
                 <TableCell>
                   <IconButton
                     component={RouterLink}

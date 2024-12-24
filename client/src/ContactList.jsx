@@ -57,8 +57,8 @@ function ContactList() {
     return <Loader />;
   }
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Contact Management
         </Typography>
@@ -75,7 +75,7 @@ function ContactList() {
       </Box>
 
       <TableContainer component={Paper}>
-        <Table>
+        <Table sx={{ minWidth: 1000 }}>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -83,18 +83,22 @@ function ContactList() {
               <TableCell>Role</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
+              <TableCell>Preferred Contact Method</TableCell>
+              <TableCell>Time Zone</TableCell>
               <TableCell>Restaurant ID</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {contacts.map((c) => (
-              <TableRow key={c.id}>
+              <TableRow key={c.id} sx={{ "& > *": { whiteSpace: "nowrap" } }}>
                 <TableCell>{c.id}</TableCell>
                 <TableCell>{c.name}</TableCell>
                 <TableCell>{c.role}</TableCell>
                 <TableCell>{c.email}</TableCell>
                 <TableCell>{c.phone}</TableCell>
+                <TableCell>{c.preferred_contact_method}</TableCell>
+                <TableCell>{c.time_zone}</TableCell>
                 <TableCell>{c.restaurant_id}</TableCell>
                 <TableCell>
                   <IconButton
