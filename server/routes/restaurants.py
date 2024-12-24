@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Restaurant
+from models import db, Restaurant, RestaurantStatus, CallFrequency
 from datetime import datetime
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
@@ -15,8 +15,8 @@ def get_restaurants():
                 "id": r.id,
                 "name": r.name,
                 "address": r.address,
-                "status": r.status,
-                "call_frequency": r.call_frequency,
+                "status": r.status.value,
+                "call_frequency": r.call_frequency.value,
                 "last_call_date": (
                     r.last_call_date.isoformat() if r.last_call_date else None
                 ),
@@ -32,8 +32,8 @@ def create_restaurant():
         new_restaurant = Restaurant(
             name=data.get("name"),
             address=data.get("address"),
-            status=data.get("status", "New"),
-            call_frequency=data.get("call_frequency", "Weekly"),
+            status=RestaurantStatus[data.get("status", "NEW").upper()],
+            call_frequency=CallFrequency[data.get("call_frequency", "WEEKLY").upper()],
             last_call_date=(
                 datetime.strptime(data["last_call_date"], "%Y-%m-%d")
                 if data.get("last_call_date")
@@ -43,6 +43,8 @@ def create_restaurant():
         db.session.add(new_restaurant)
         db.session.commit()
         return jsonify({"message": "Restaurant created", "id": new_restaurant.id}), 201
+    except KeyError as e:
+        return jsonify({"error": f"Invalid value: {e}"}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
@@ -57,8 +59,8 @@ def get_restaurant_by_id(restaurant_id):
                 "id": restaurant.id,
                 "name": restaurant.name,
                 "address": restaurant.address,
-                "status": restaurant.status,
-                "call_frequency": restaurant.call_frequency,
+                "status": restaurant.status.value,
+                "call_frequency": restaurant.call_frequency.value,
                 "last_call_date": (
                     restaurant.last_call_date.isoformat()
                     if restaurant.last_call_date
@@ -68,7 +70,7 @@ def get_restaurant_by_id(restaurant_id):
                     {
                         "id": c.id,
                         "name": c.name,
-                        "role": c.role,
+                        "role": c.role.value,
                         "email": c.email,
                         "phone": c.phone,
                     }
@@ -77,7 +79,7 @@ def get_restaurant_by_id(restaurant_id):
                 "interactions": [
                     {
                         "id": i.id,
-                        "type": i.type,
+                        "type": i.type.value,
                         "details": i.details,
                         "interaction_date": i.interaction_date.isoformat(),
                     }
@@ -96,16 +98,22 @@ def update_restaurant(restaurant_id):
     try:
         restaurant.name = data.get("name", restaurant.name)
         restaurant.address = data.get("address", restaurant.address)
-        restaurant.status = data.get("status", restaurant.status)
-        restaurant.call_frequency = data.get(
-            "call_frequency", restaurant.call_frequency
-        )
+        if "status" in data:
+            restaurant.status = RestaurantStatus[
+                data["status"].upper()
+            ]  # Convert string to enum
+        if "call_frequency" in data:
+            restaurant.call_frequency = CallFrequency[
+                data["call_frequency"].upper()
+            ]  # Convert string to enum
         if data.get("last_call_date"):
             restaurant.last_call_date = datetime.strptime(
                 data["last_call_date"], "%Y-%m-%d"
             )
         db.session.commit()
         return jsonify({"message": "Restaurant updated"}), 200
+    except KeyError as e:
+        return jsonify({"error": f"Invalid value: {e}"}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400

@@ -12,7 +12,7 @@ def get_interactions():
         {
             "id": i.id,
             "interaction_date": i.interaction_date.isoformat(),
-            "type": i.type,
+            "type": i.type.value,
             "details": i.details,
             "restaurant_id": i.restaurant_id,
         }
@@ -25,17 +25,28 @@ def get_interactions():
 def create_interaction():
     data = request.get_json()
     try:
+        interaction_type = data.get("type", "").upper()
+        if interaction_type not in [
+            "CALL",
+            "MEETING",
+            "EMAIL",
+            "SITE_VISIT",
+            "FOLLOW_UP",
+        ]:
+            raise ValueError(f"Invalid interaction type: {interaction_type}")
+
         new_interaction = Interaction(
-            interaction_date=datetime.strptime(
-                data["interaction_date"], "%Y-%m-%d"
-            ),
-            type=data.get("type"),
+            interaction_date=datetime.strptime(data["interaction_date"], "%Y-%m-%d"),
+            type=interaction_type,
             details=data.get("details"),
             restaurant_id=data.get("restaurant_id"),
         )
         db.session.add(new_interaction)
         db.session.commit()
-        return jsonify({"message": "Interaction created", "id": new_interaction.id}), 201
+        return (
+            jsonify({"message": "Interaction created", "id": new_interaction.id}),
+            201,
+        )
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
@@ -63,7 +74,18 @@ def update_interaction(interaction_id):
     interaction = Interaction.query.get_or_404(interaction_id)
     data = request.get_json()
     try:
-        interaction.type = data.get("type", interaction.type)
+        if "type" in data:
+            interaction_type = data.get("type", "").upper()
+            if interaction_type not in [
+                "CALL",
+                "MEETING",
+                "EMAIL",
+                "SITE_VISIT",
+                "FOLLOW_UP",
+            ]:
+                raise ValueError(f"Invalid interaction type: {interaction_type}")
+            interaction.type = interaction_type
+
         interaction.details = data.get("details", interaction.details)
         if data.get("interaction_date"):
             interaction.interaction_date = datetime.strptime(

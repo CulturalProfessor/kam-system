@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, TextField, Button, Typography } from "@mui/material";
+import { Container, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import PropTypes from "prop-types";
+
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 ContactForm.propTypes = {
   isEdit: PropTypes.bool,
 };
-
 
 function ContactForm({ isEdit }) {
   const { id } = useParams();
@@ -19,6 +19,8 @@ function ContactForm({ isEdit }) {
     phone: "",
     restaurant_id: "",
   });
+  const [restaurants, setRestaurants] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (isEdit) {
@@ -28,6 +30,13 @@ function ContactForm({ isEdit }) {
         .catch((error) => console.error("Error fetching contact:", error));
     }
   }, [id, isEdit]);
+
+  useEffect(() => {
+    fetch(`${SERVER_URL}/api/restaurants`)
+      .then((response) => response.json())
+      .then((data) => setRestaurants(data))
+      .catch((error) => console.error("Error fetching restaurants:", error));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,10 +58,11 @@ function ContactForm({ isEdit }) {
       if (response.ok) {
         navigate("/contacts");
       } else {
-        console.error("Failed to save contact");
+        const errData = await response.json();
+        setError(errData.error || `Error ${isEdit ? "updating" : "adding"} contact`);
       }
     } catch (error) {
-      console.error("Error:", error);
+      setError(error.message);
     }
   };
 
@@ -96,15 +106,27 @@ function ContactForm({ isEdit }) {
           onChange={handleChange}
           margin="normal"
         />
-        <TextField
-          fullWidth
-          label="Restaurant ID"
-          name="restaurant_id"
-          value={formData.restaurant_id}
-          onChange={handleChange}
-          required
-          margin="normal"
-        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Restaurant ID</InputLabel>
+          <Select
+            name="restaurant_id"
+            value={formData.restaurant_id}
+            onChange={handleChange}
+            required
+            sx={{ marginTop: 1 }}
+          >
+            {restaurants.map((restaurant) => (
+              <MenuItem key={restaurant.id} value={restaurant.id}>
+                {restaurant.id} - {restaurant.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {error && (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
         <Button
           type="submit"
           variant="contained"

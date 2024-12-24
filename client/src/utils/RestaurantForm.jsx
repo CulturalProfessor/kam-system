@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, TextField, Button, Typography } from "@mui/material";
-import Loader from "./utils/Loader";
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
+import Loader from "./Loader";
 import PropTypes from "prop-types";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
@@ -89,22 +98,35 @@ function RestaurantForm({ isEdit }) {
           required
           margin="normal"
         />
-        <TextField
-          fullWidth
-          label="Status"
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label="Call Frequency"
-          name="call_frequency"
-          value={formData.call_frequency}
-          onChange={handleChange}
-          margin="normal"
-        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Status</InputLabel>
+          <Select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            required
+            sx={{ marginTop: 1 }}
+          >
+            <MenuItem value="New">New</MenuItem>
+            <MenuItem value="Contacted">Contacted</MenuItem>
+            <MenuItem value="Converted">Converted</MenuItem>
+            <MenuItem value="Lost">Lost</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Call Frequency</InputLabel>
+          <Select
+            name="call_frequency"
+            value={formData.call_frequency}
+            onChange={handleChange}
+            required
+            sx={{ marginTop: 1 }}
+          >
+            <MenuItem value="Daily">Daily</MenuItem>
+            <MenuItem value="Weekly">Weekly</MenuItem>
+            <MenuItem value="Monthly">Monthly</MenuItem>
+          </Select>
+        </FormControl>
         {error && (
           <Typography color="error" sx={{ mt: 2 }}>
             {error}

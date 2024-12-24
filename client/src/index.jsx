@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import RestaurantList from "./RestaurantList";
-import RestaurantForm from "./RestaurantForm";
+import RestaurantForm from "./utils/RestaurantForm";
 import ContactList from "./ContactList";
-import ContactForm from "./ContactForm";
+import ContactForm from "./utils/ContactForm";
 import Navbar from "./Navbar";
-
+import InteractionList from "./InteractionList";
+import InteractionForm from "./utils/InteractionForm";
 function App() {
   return (
     <Router>
@@ -24,6 +25,15 @@ function App() {
         <Route
           path="/contacts/edit/:id"
           element={<ContactForm isEdit={true} />}
+        />{" "}
+        <Route path="/interactions" element={<InteractionList />} />
+        <Route
+          path="/interactions/new"
+          element={<InteractionForm isEdit={false} />}
+        />
+        <Route
+          path="/interactions/edit/:id"
+          element={<InteractionForm isEdit={true} />}
         />
       </Routes>
     </Router>
