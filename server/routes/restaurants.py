@@ -70,7 +70,7 @@ def get_restaurant_by_id(restaurant_id):
                     {
                         "id": c.id,
                         "name": c.name,
-                        "role": c.role.value,
+                        "role": c.role if isinstance(c.role, str) else c.role.value,
                         "email": c.email,
                         "phone": c.phone,
                     }
