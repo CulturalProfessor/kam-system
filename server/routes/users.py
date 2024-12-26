@@ -2,8 +2,11 @@ from flask import Blueprint, request, jsonify, current_app
 from models import db, User, UserRole
 from flask_jwt_extended import create_access_token
 from utils import bcrypt
+from datetime import timedelta
 
 user_bp = Blueprint("user_bp", __name__)
+
+expires = timedelta(days=3)
 
 
 @user_bp.route("/users", methods=["GET"])
@@ -33,7 +36,11 @@ def login_user():
     data = request.get_json()
     user = User.query.filter_by(email=data.get("email")).first()
     if user and bcrypt.check_password_hash(user.password_hash, data.get("password")):
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(
+            identity=user.id,
+            additional_claims={"role": user.role.value, "email": user.email},
+            expires_delta=expires,
+        )
         return (
             jsonify({"message": "Login successful", "access_token": access_token}),
             200,
@@ -57,8 +64,13 @@ def create_user():
             password_hash=password_hash,
             role=UserRole[data.get("role", "KAM").upper()],
         )
-        access_token = create_access_token(identity=new_user.id)
+
         db.session.add(new_user)
+        access_token = create_access_token(
+            identity=new_user.id,
+            additional_claims={"role": new_user.role.value, "email": new_user.email},
+            expires_delta=expires,
+        )
         db.session.commit()
         return (
             jsonify(

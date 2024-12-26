@@ -17,7 +17,7 @@ import {
   fetchAllRestaurants,
   fetchAllContacts,
   saveInteraction,
-} from "./apis";
+} from "../utils/apis";
 
 InteractionForm.propTypes = {
   isEdit: PropTypes.bool,

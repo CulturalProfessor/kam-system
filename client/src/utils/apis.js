@@ -1,7 +1,17 @@
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("accessToken");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 export const fetchRestaurants = async () => {
-  const response = await fetch(`${SERVER_URL}/api/restaurants`);
+  const response = await fetch(`${SERVER_URL}/api/restaurants`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch restaurants");
   }
@@ -11,6 +21,7 @@ export const fetchRestaurants = async () => {
 export const deleteRestaurant = async (id) => {
   const response = await fetch(`${SERVER_URL}/api/restaurants/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(),
   });
   if (!response.ok) {
     throw new Error("Failed to delete restaurant");
@@ -18,7 +29,9 @@ export const deleteRestaurant = async (id) => {
 };
 
 export const fetchInteractions = async () => {
-  const response = await fetch(`${SERVER_URL}/api/interactions`);
+  const response = await fetch(`${SERVER_URL}/api/interactions`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch interactions");
   }
@@ -28,6 +41,7 @@ export const fetchInteractions = async () => {
 export const deleteInteraction = async (id) => {
   const response = await fetch(`${SERVER_URL}/api/interactions/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(),
   });
   if (!response.ok) {
     throw new Error("Failed to delete interaction");
@@ -35,7 +49,9 @@ export const deleteInteraction = async (id) => {
 };
 
 export const fetchContacts = async () => {
-  const response = await fetch(`${SERVER_URL}/api/contacts`);
+  const response = await fetch(`${SERVER_URL}/api/contacts`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch contacts");
   }
@@ -45,6 +61,7 @@ export const fetchContacts = async () => {
 export const deleteContact = async (id) => {
   const response = await fetch(`${SERVER_URL}/api/contacts/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(),
   });
   if (!response.ok) {
     throw new Error("Failed to delete contact");
@@ -86,7 +103,9 @@ export const registerUser = async (formData) => {
 };
 
 export const fetchContactById = async (id) => {
-  const response = await fetch(`${SERVER_URL}/api/contacts/${id}`);
+  const response = await fetch(`${SERVER_URL}/api/contacts/${id}`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch contact");
   }
@@ -94,7 +113,9 @@ export const fetchContactById = async (id) => {
 };
 
 export const fetchAllRestaurants = async () => {
-  const response = await fetch(`${SERVER_URL}/api/restaurants`);
+  const response = await fetch(`${SERVER_URL}/api/restaurants`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch restaurants");
   }
@@ -102,7 +123,9 @@ export const fetchAllRestaurants = async () => {
 };
 
 export const fetchAllContacts = async () => {
-  const response = await fetch(`${SERVER_URL}/api/contacts`);
+  const response = await fetch(`${SERVER_URL}/api/contacts`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch contacts");
   }
@@ -110,7 +133,9 @@ export const fetchAllContacts = async () => {
 };
 
 export const fetchInteractionById = async (id) => {
-  const response = await fetch(`${SERVER_URL}/api/interactions/${id}`);
+  const response = await fetch(`${SERVER_URL}/api/interactions/${id}`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch interaction");
   }
@@ -118,7 +143,9 @@ export const fetchInteractionById = async (id) => {
 };
 
 export const fetchRestaurantById = async (id) => {
-  const response = await fetch(`${SERVER_URL}/api/restaurants/${id}`);
+  const response = await fetch(`${SERVER_URL}/api/restaurants/${id}`, {
+    headers: getAuthHeaders(),
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch restaurant");
   }
@@ -133,7 +160,7 @@ export const saveContact = async (contact, isEdit, id) => {
 
   const response = await fetch(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(contact),
   });
 
@@ -151,7 +178,7 @@ export const saveInteraction = async (interaction, isEdit, id) => {
 
   const response = await fetch(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(interaction),
   });
 
@@ -169,7 +196,7 @@ export const saveRestaurant = async (restaurant, isEdit, id) => {
 
   const response = await fetch(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(restaurant),
   });
 

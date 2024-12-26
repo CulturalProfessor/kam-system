@@ -1,7 +1,14 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    localStorage.removeItem("accessToken");
+    navigate("/login");
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -17,6 +24,21 @@ function Navbar() {
           </Button>
           <Button color="inherit" component={RouterLink} to="/interactions">
             Interactions
+          </Button>
+          <Button
+            color="inherit"
+            onClick={handleSignOut}
+            sx={{
+              ml: 2,
+              background: "#f44336",
+              fontWeight: "bold",
+              ":hover": {
+                background: "red",
+              },
+            }}
+            
+          >
+            Sign Out
           </Button>
         </Box>
       </Toolbar>

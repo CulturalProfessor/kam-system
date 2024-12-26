@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from models import db, Contact, PreferredContactMethod
+from flask_jwt_extended import jwt_required
 
 contact_bp = Blueprint("contact_bp", __name__)
 
 
 @contact_bp.route("/contacts", methods=["GET"])
+@jwt_required()
 def get_contacts():
     contacts = Contact.query.all()
     result = [
@@ -26,6 +28,7 @@ def get_contacts():
 
 
 @contact_bp.route("/contacts", methods=["POST"])
+@jwt_required()
 def create_contact():
     data = request.get_json()
     try:
@@ -53,6 +56,7 @@ def create_contact():
 
 
 @contact_bp.route("/contacts/<int:contact_id>", methods=["GET"])
+@jwt_required()
 def get_contact_by_id(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     return (
@@ -77,6 +81,7 @@ def get_contact_by_id(contact_id):
 
 
 @contact_bp.route("/contacts/<int:contact_id>", methods=["PUT"])
+@jwt_required()
 def update_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     data = request.get_json()
@@ -100,6 +105,7 @@ def update_contact(contact_id):
 
 
 @contact_bp.route("/contacts/<int:contact_id>", methods=["DELETE"])
+@jwt_required()
 def delete_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     try:

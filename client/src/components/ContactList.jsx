@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -11,22 +10,23 @@ import {
   TableRow,
   Paper,
   Button,
-  Box,
   IconButton,
+  Box,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
-import Loader from "./utils/Loader";
-import { fetchInteractions, deleteInteraction } from "./utils/apis";
+import { Link as RouterLink } from "react-router-dom";
+import Loader from "./Loader";
+import { fetchContacts, deleteContact } from "../utils/apis";
 
-function InteractionList() {
-  const [interactions, setInteractions] = useState([]);
+function ContactList() {
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this interaction?")) {
+    if (window.confirm("Are you sure you want to delete this contact?")) {
       try {
-        await deleteInteraction(id);
-        setInteractions((prev) => prev.filter((i) => i.id !== id));
+        await deleteContact(id);
+        setContacts((prev) => prev.filter((c) => c.id !== id));
       } catch (err) {
         console.error(err.message);
       }
@@ -34,37 +34,36 @@ function InteractionList() {
   };
 
   useEffect(() => {
-    const loadInteractions = async () => {
+    const loadContacts = async () => {
       try {
-        const data = await fetchInteractions();
-        setInteractions(data);
+        const data = await fetchContacts();
+        setContacts(data);
       } catch (error) {
-        console.error("Error fetching interactions:", error.message);
+        console.error("Error fetching contacts:", error.message);
       } finally {
         setLoading(false);
       }
     };
-    loadInteractions();
+    loadContacts();
   }, []);
 
   if (loading) {
     return <Loader />;
   }
-
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Interaction Management
+          Contact Management
         </Typography>
         <Button
           variant="contained"
           color="primary"
           component={RouterLink}
-          to="/interactions/new"
+          to="/contacts/new"
           sx={{ mb: 2 }}
         >
-          Add New Interaction
+          Add New Contact
         </Button>
       </Box>
       <TableContainer component={Paper}>
@@ -72,36 +71,36 @@ function InteractionList() {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Interaction Date</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Outcome</TableCell>
-              <TableCell>Details</TableCell>
-              <TableCell>Duration Minutes</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Phone</TableCell>
+              <TableCell>Preferred Contact Method</TableCell>
+              <TableCell>Time Zone</TableCell>
               <TableCell>Restaurant ID</TableCell>
-              <TableCell>Contact ID</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {interactions.map((i) => (
-              <TableRow key={i.id} sx={{ "& > *": { whiteSpace: "nowrap" } }}>
-                <TableCell>{i.id}</TableCell>
-                <TableCell>{i.interaction_date.split("T")[0]}</TableCell>
-                <TableCell>{i.type}</TableCell>
-                <TableCell>{i.outcome}</TableCell>
-                <TableCell>{i.details}</TableCell>
-                <TableCell>{i.duration_minutes}</TableCell>
-                <TableCell>{i.restaurant_id}</TableCell>
-                <TableCell>{i.contact_id}</TableCell>
+            {contacts.map((c) => (
+              <TableRow key={c.id} sx={{ "& > *": { whiteSpace: "nowrap" } }}>
+                <TableCell>{c.id}</TableCell>
+                <TableCell>{c.name}</TableCell>
+                <TableCell>{c.role}</TableCell>
+                <TableCell>{c.email}</TableCell>
+                <TableCell>{c.phone}</TableCell>
+                <TableCell>{c.preferred_contact_method}</TableCell>
+                <TableCell>{c.time_zone}</TableCell>
+                <TableCell>{c.restaurant_id}</TableCell>
                 <TableCell>
                   <IconButton
                     component={RouterLink}
-                    to={`/interactions/edit/${i.id}`}
+                    to={`/contacts/edit/${c.id}`}
                     color="primary"
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(i.id)} color="error">
+                  <IconButton onClick={() => handleDelete(c.id)} color="error">
                     <Delete />
                   </IconButton>
                 </TableCell>
@@ -114,4 +113,4 @@ function InteractionList() {
   );
 }
 
-export default InteractionList;
+export default ContactList;

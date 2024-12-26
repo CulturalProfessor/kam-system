@@ -4,15 +4,15 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import RestaurantList from "./RestaurantList";
-import RestaurantForm from "./utils/RestaurantForm";
-import ContactList from "./ContactList";
-import ContactForm from "./utils/ContactForm";
+import RestaurantList from "./components/RestaurantList";
+import RestaurantForm from "./components//RestaurantForm";
+import ContactList from "./components/ContactList";
+import ContactForm from "./components//ContactForm";
 import Navbar from "./Navbar";
-import InteractionList from "./InteractionList";
-import InteractionForm from "./utils/InteractionForm";
-import Register from "./Register";
-import Login from "./Login";
+import InteractionList from "./components/InteractionList";
+import InteractionForm from "./components//InteractionForm";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function App() {
   return (

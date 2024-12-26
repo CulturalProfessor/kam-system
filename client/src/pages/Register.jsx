@@ -5,15 +5,22 @@ import {
   TextField,
   Button,
   Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
   Box,
   Paper,
 } from "@mui/material";
-import { loginUser } from "./utils/apis";
+import { registerUser } from "../utils/apis";
 
-function Login() {
+function Register() {
   const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
     email: "",
     password: "",
+    role: "",
   });
   const [error, setError] = useState("");
 
@@ -27,7 +34,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await loginUser(formData);
+      const data = await registerUser(formData);
       const accessToken = data.access_token;
       localStorage.setItem("accessToken", accessToken);
       navigate("/restaurants");
@@ -40,9 +47,31 @@ function Login() {
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Login
+          Register
         </Typography>
         <form onSubmit={handleSubmit}>
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              fullWidth
+              variant="outlined"
+            />
+          </Box>
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              label="Phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              fullWidth
+              variant="outlined"
+            />
+          </Box>
           <Box sx={{ mb: 3 }}>
             <TextField
               label="Email"
@@ -67,6 +96,22 @@ function Login() {
               variant="outlined"
             />
           </Box>
+          <Box sx={{ mb: 3 }}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Role</InputLabel>
+              <Select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                label="Role"
+              >
+                <MenuItem value="Manager">Manager</MenuItem>
+                <MenuItem value="KAM">Key Account Manager</MenuItem>
+                <MenuItem value="Admin">Admin</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
           <Button
             type="submit"
             variant="contained"
@@ -74,14 +119,14 @@ function Login() {
             size="large"
             sx={{ mb: 2 }}
           >
-            Login
+            Register
           </Button>
         </form>
 
         <Typography align="center" sx={{ mt: 2 }}>
-          Don&apos;t have an account?{" "}
-          <Button variant="text" onClick={() => navigate("/")}>
-            Register
+          Already have an account?{" "}
+          <Button variant="text" onClick={() => navigate("/login")}>
+            Login
           </Button>
         </Typography>
 
@@ -95,4 +140,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

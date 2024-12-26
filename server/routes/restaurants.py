@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from models import db, Restaurant, RestaurantStatus, CallFrequency
 from datetime import datetime
+from flask_jwt_extended import jwt_required
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
 
-
 @restaurant_bp.route("/restaurants", methods=["GET"])
+@jwt_required()
 def get_restaurants():
     restaurants = Restaurant.query.all()
     result = [
@@ -25,6 +26,7 @@ def get_restaurants():
 
 
 @restaurant_bp.route("/restaurants", methods=["POST"])
+@jwt_required()
 def create_restaurant():
     data = request.get_json()
     try:
@@ -52,6 +54,7 @@ def create_restaurant():
 
 
 @restaurant_bp.route("/restaurants/<int:restaurant_id>", methods=["GET"])
+@jwt_required()
 def get_restaurant_by_id(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     return (
@@ -95,6 +98,7 @@ def get_restaurant_by_id(restaurant_id):
 
 
 @restaurant_bp.route("/restaurants/<int:restaurant_id>", methods=["PUT"])
+@jwt_required()
 def update_restaurant(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     data = request.get_json()
@@ -121,6 +125,7 @@ def update_restaurant(restaurant_id):
 
 
 @restaurant_bp.route("/restaurants/<int:restaurant_id>", methods=["DELETE"])
+@jwt_required()
 def delete_restaurant(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     try:

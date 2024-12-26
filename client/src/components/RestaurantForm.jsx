@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Loader from "./Loader";
 import PropTypes from "prop-types";
-import { fetchRestaurantById, saveRestaurant } from "./apis";
+import { fetchRestaurantById, saveRestaurant } from "../utils/apis";
 
 RestaurantForm.propTypes = {
   isEdit: PropTypes.bool,

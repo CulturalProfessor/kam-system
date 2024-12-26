@@ -16,8 +16,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
-import Loader from "./utils/Loader";
-import { fetchRestaurants, deleteRestaurant } from "./utils/apis";
+import Loader from "./Loader";
+import { fetchRestaurants, deleteRestaurant } from "../utils/apis";
 
 function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);
@@ -62,7 +62,7 @@ function RestaurantList() {
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Lead Management: Restaurants
+          Restaurant Management
         </Typography>
 
         <Button
@@ -70,6 +70,7 @@ function RestaurantList() {
           color="primary"
           component={RouterLink}
           to="/restaurants/new"
+          sx={{ mb: 2 }}
         >
           Add New Restaurant
         </Button>
