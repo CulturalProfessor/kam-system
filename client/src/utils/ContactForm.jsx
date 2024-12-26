@@ -10,10 +10,9 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import PropTypes from "prop-types";
 import Loader from "./Loader";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import PropTypes from "prop-types";
+import { fetchContactById, fetchAllRestaurants, saveContact } from "./apis";
 
 ContactForm.propTypes = {
   isEdit: PropTypes.bool,
@@ -36,18 +35,16 @@ function ContactForm({ isEdit }) {
 
   useEffect(() => {
     if (isEdit) {
-      fetch(`${SERVER_URL}/api/contacts/${id}`)
-        .then((response) => response.json())
+      fetchContactById(id)
         .then((data) => setFormData(data))
-        .catch((error) => console.error("Error fetching contact:", error));
+        .catch((err) => setError(err.message));
     }
   }, [id, isEdit]);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/restaurants`)
-      .then((response) => response.json())
+    fetchAllRestaurants()
       .then((data) => setRestaurants(data))
-      .catch((error) => console.error("Error fetching restaurants:", error));
+      .catch((err) => setError(err.message));
   }, []);
 
   const handleChange = (e) => {
@@ -57,26 +54,11 @@ function ContactForm({ isEdit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = isEdit
-      ? `${SERVER_URL}/api/contacts/${id}`
-      : `${SERVER_URL}/api/contacts`;
-    const method = isEdit ? "PUT" : "POST";
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        navigate("/contacts");
-      } else {
-        const errData = await response.json();
-        setError(
-          errData.error || `Error ${isEdit ? "updating" : "adding"} contact`
-        );
-      }
-    } catch (error) {
-      setError(error.message);
+      await saveContact(formData, isEdit, id);
+      navigate("/contacts");
+    } catch (err) {
+      setError(err.message);
     }
   };
 

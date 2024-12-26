@@ -12,8 +12,7 @@ import {
 } from "@mui/material";
 import Loader from "./Loader";
 import PropTypes from "prop-types";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import { fetchRestaurantById, saveRestaurant } from "./apis";
 
 RestaurantForm.propTypes = {
   isEdit: PropTypes.bool,
@@ -21,6 +20,7 @@ RestaurantForm.propTypes = {
 
 function RestaurantForm({ isEdit }) {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -31,12 +31,10 @@ function RestaurantForm({ isEdit }) {
     notes: "",
   });
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (isEdit) {
-      fetch(`${SERVER_URL}/api/restaurants/${id}`)
-        .then((response) => response.json())
+      fetchRestaurantById(id)
         .then((data) => setFormData(data))
         .catch((err) => setError(err.message));
     }
@@ -49,25 +47,9 @@ function RestaurantForm({ isEdit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = isEdit
-      ? `${SERVER_URL}/api/restaurants/${id}`
-      : `${SERVER_URL}/api/restaurants`;
-    const method = isEdit ? "PUT" : "POST";
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        navigate("/restaurants");
-      } else {
-        const errData = await response.json();
-        setError(
-          errData.error || `Error ${isEdit ? "updating" : "adding"} restaurant`
-        );
-      }
+      await saveRestaurant(formData, isEdit, id);
+      navigate("/restaurants");
     } catch (err) {
       setError(err.message);
     }

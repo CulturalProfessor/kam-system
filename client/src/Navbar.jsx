@@ -9,7 +9,7 @@ function Navbar() {
           KAM Lead Management
         </Typography>
         <Box>
-          <Button color="inherit" component={RouterLink} to="/">
+          <Button color="inherit" component={RouterLink} to="/restaurants">
             Restaurants
           </Button>
           <Button color="inherit" component={RouterLink} to="/contacts">

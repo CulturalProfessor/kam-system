@@ -12,8 +12,12 @@ import {
 } from "@mui/material";
 import Loader from "./Loader";
 import PropTypes from "prop-types";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import {
+  fetchInteractionById,
+  fetchAllRestaurants,
+  fetchAllContacts,
+  saveInteraction,
+} from "./apis";
 
 InteractionForm.propTypes = {
   isEdit: PropTypes.bool,
@@ -37,21 +41,18 @@ function InteractionForm({ isEdit }) {
 
   useEffect(() => {
     if (isEdit) {
-      fetch(`${SERVER_URL}/api/interactions/${id}`)
-        .then((response) => response.json())
+      fetchInteractionById(id)
         .then((data) => setFormData(data))
         .catch((err) => setError(err.message));
     }
   }, [id, isEdit]);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/restaurants`)
-      .then((response) => response.json())
+    fetchAllRestaurants()
       .then((data) => setRestaurants(data))
       .catch((error) => console.error("Error fetching restaurants:", error));
 
-    fetch(`${SERVER_URL}/api/contacts`)
-      .then((response) => response.json())
+    fetchAllContacts()
       .then((data) => setContacts(data))
       .catch((error) => console.error("Error fetching contacts:", error));
   }, []);
@@ -71,25 +72,9 @@ function InteractionForm({ isEdit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = isEdit
-      ? `${SERVER_URL}/api/interactions/${id}`
-      : `${SERVER_URL}/api/interactions`;
-    const method = isEdit ? "PUT" : "POST";
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        navigate("/interactions");
-      } else {
-        const errData = await response.json();
-        setError(
-          errData.error || `Error ${isEdit ? "updating" : "adding"} interaction`
-        );
-      }
+      await saveInteraction(formData, isEdit, id);
+      navigate("/interactions");
     } catch (err) {
       setError(err.message);
     }
@@ -109,7 +94,7 @@ function InteractionForm({ isEdit }) {
       details: "Sample interaction details",
       duration_minutes: 30,
       restaurant_id: randomRestaurant.id,
-      contact_id: contactsForRestaurant[0].id,
+      contact_id: contactsForRestaurant[0]?.id || "",
     });
   };
 
@@ -171,6 +156,7 @@ function InteractionForm({ isEdit }) {
             <MenuItem value="Cancelled">Cancelled</MenuItem>
           </Select>
         </FormControl>
+
         <TextField
           fullWidth
           label="Details"
@@ -189,6 +175,7 @@ function InteractionForm({ isEdit }) {
           type="number"
           margin="normal"
         />
+
         <FormControl fullWidth margin="normal">
           <InputLabel>Restaurant ID</InputLabel>
           <Select
@@ -206,7 +193,11 @@ function InteractionForm({ isEdit }) {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth margin="normal">
+        <FormControl
+          fullWidth
+          margin="normal"
+          disabled={!formData.restaurant_id}
+        >
           <InputLabel>Contact ID</InputLabel>
           <Select
             name="contact_id"
@@ -214,7 +205,6 @@ function InteractionForm({ isEdit }) {
             onChange={handleChange}
             required
             sx={{ marginTop: 1 }}
-            disabled={!formData.restaurant_id}
           >
             {filteredContacts.map((contact) => (
               <MenuItem key={contact.id} value={contact.id}>

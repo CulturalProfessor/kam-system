@@ -17,8 +17,7 @@ import {
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import Loader from "./utils/Loader";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import { fetchRestaurants, deleteRestaurant } from "./utils/apis";
 
 function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);
@@ -27,31 +26,27 @@ function RestaurantList() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this restaurant?")) {
       try {
-        const response = await fetch(`${SERVER_URL}/api/restaurants/${id}`, {
-          method: "DELETE",
-        });
-        if (response.ok) {
-          setRestaurants((prev) => prev.filter((r) => r.id !== id));
-        } else {
-          console.error("Failed to delete restaurant");
-        }
+        await deleteRestaurant(id);
+        setRestaurants((prev) => prev.filter((r) => r.id !== id));
       } catch (err) {
-        console.error(err);
+        console.error(err.message);
       }
     }
   };
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/restaurants`)
-      .then((response) => response.json())
-      .then((data) => {
+    const loadRestaurants = async () => {
+      try {
+        const data = await fetchRestaurants();
         setRestaurants(data);
+      } catch (error) {
+        console.error("Error fetching restaurants:", error.message);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching restaurants:", error);
-        setLoading(false);
-      });
+      }
+    };
+
+    loadRestaurants();
   }, []);
 
   const trimText = (text, length = 30) => {

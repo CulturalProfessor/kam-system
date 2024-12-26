@@ -16,8 +16,7 @@ import {
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import Loader from "./utils/Loader";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import { fetchInteractions, deleteInteraction } from "./utils/apis";
 
 function InteractionList() {
   const [interactions, setInteractions] = useState([]);
@@ -26,31 +25,26 @@ function InteractionList() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this interaction?")) {
       try {
-        const response = await fetch(`${SERVER_URL}/api/interactions/${id}`, {
-          method: "DELETE",
-        });
-        if (response.ok) {
-          setInteractions((prev) => prev.filter((i) => i.id !== id));
-        } else {
-          console.error("Failed to delete interaction");
-        }
+        await deleteInteraction(id);
+        setInteractions((prev) => prev.filter((i) => i.id !== id));
       } catch (err) {
-        console.error(err);
+        console.error(err.message);
       }
     }
   };
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/interactions`)
-      .then((response) => response.json())
-      .then((data) => {
+    const loadInteractions = async () => {
+      try {
+        const data = await fetchInteractions();
         setInteractions(data);
+      } catch (error) {
+        console.error("Error fetching interactions:", error.message);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching interactions:", error);
-        setLoading(false);
-      });
+      }
+    };
+    loadInteractions();
   }, []);
 
   if (loading) {
@@ -99,7 +93,6 @@ function InteractionList() {
                 <TableCell>{i.duration_minutes}</TableCell>
                 <TableCell>{i.restaurant_id}</TableCell>
                 <TableCell>{i.contact_id}</TableCell>
-
                 <TableCell>
                   <IconButton
                     component={RouterLink}

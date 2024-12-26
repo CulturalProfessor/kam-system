@@ -8,8 +8,7 @@ import {
   Box,
   Paper,
 } from "@mui/material";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import { loginUser } from "./utils/apis";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -27,21 +26,8 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = `${SERVER_URL}/api/users/login`;
-
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        throw new Error(errorResponse.error || "Error logging in");
-      }
-      const data = await response.json();
+      const data = await loginUser(formData);
       const accessToken = data.access_token;
       localStorage.setItem("accessToken", accessToken);
       navigate("/restaurants");

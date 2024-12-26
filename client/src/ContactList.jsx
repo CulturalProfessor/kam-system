@@ -16,8 +16,7 @@ import {
 import { Edit, Delete } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
 import Loader from "./utils/Loader";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import { fetchContacts, deleteContact } from "./utils/apis";
 
 function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -26,31 +25,26 @@ function ContactList() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this contact?")) {
       try {
-        const response = await fetch(`${SERVER_URL}/api/contacts/${id}`, {
-          method: "DELETE",
-        });
-        if (response.ok) {
-          setContacts((prev) => prev.filter((c) => c.id !== id));
-        } else {
-          console.error("Failed to delete contact");
-        }
+        await deleteContact(id);
+        setContacts((prev) => prev.filter((c) => c.id !== id));
       } catch (err) {
-        console.error(err);
+        console.error(err.message);
       }
     }
   };
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/contacts`)
-      .then((response) => response.json())
-      .then((data) => {
+    const loadContacts = async () => {
+      try {
+        const data = await fetchContacts();
         setContacts(data);
+      } catch (error) {
+        console.error("Error fetching contacts:", error.message);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching contacts:", error);
-        setLoading(false);
-      });
+      }
+    };
+    loadContacts();
   }, []);
 
   if (loading) {
@@ -62,7 +56,6 @@ function ContactList() {
         <Typography variant="h4" component="h1" gutterBottom>
           Contact Management
         </Typography>
-
         <Button
           variant="contained"
           color="primary"
@@ -73,7 +66,6 @@ function ContactList() {
           Add New Contact
         </Button>
       </Box>
-
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 1000 }}>
           <TableHead>

@@ -12,8 +12,7 @@ import {
   Box,
   Paper,
 } from "@mui/material";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+import { registerUser } from "./utils/apis";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -34,20 +33,8 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = `${SERVER_URL}/api/users/register`;
-
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        throw new Error("Error registering user");
-      }
-      const data = await response.json();
+      const data = await registerUser(formData);
       const accessToken = data.access_token;
       localStorage.setItem("accessToken", accessToken);
       navigate("/restaurants");
