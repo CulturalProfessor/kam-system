@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import RestaurantList from "./RestaurantList";
 import RestaurantForm from "./utils/RestaurantForm";
 import ContactList from "./ContactList";
@@ -6,12 +11,17 @@ import ContactForm from "./utils/ContactForm";
 import Navbar from "./Navbar";
 import InteractionList from "./InteractionList";
 import InteractionForm from "./utils/InteractionForm";
+import Register from "./Register";
+import Login from "./Login";
+
 function App() {
   return (
     <Router>
-      <Navbar />
+      <ConditionalNavbar />
       <Routes>
-        <Route path="/" element={<RestaurantList />} />
+        <Route path="/" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/restaurants" element={<RestaurantList />} />
         <Route
           path="/restaurants/new"
           element={<RestaurantForm isEdit={false} />}
@@ -25,7 +35,7 @@ function App() {
         <Route
           path="/contacts/edit/:id"
           element={<ContactForm isEdit={true} />}
-        />{" "}
+        />
         <Route path="/interactions" element={<InteractionList />} />
         <Route
           path="/interactions/new"
@@ -38,6 +48,17 @@ function App() {
       </Routes>
     </Router>
   );
+}
+
+function ConditionalNavbar() {
+  const location = useLocation();
+
+  const hideNavbarRoutes = ["/", "/login"];
+  if (hideNavbarRoutes.includes(location.pathname)) {
+    return null;
+  }
+
+  return <Navbar />;
 }
 
 export default App;

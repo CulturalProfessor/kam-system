@@ -61,7 +61,7 @@ function RestaurantForm({ isEdit }) {
         body: JSON.stringify(formData),
       });
       if (response.ok) {
-        navigate("/");
+        navigate("/restaurants");
       } else {
         const errData = await response.json();
         setError(
