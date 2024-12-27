@@ -9,6 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import { loginUser } from "../utils/apis";
+import { useUser } from "../utils/context";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ function Login() {
     password: "",
   });
   const [error, setError] = useState("");
+  const { login } = useUser();
 
   const navigate = useNavigate();
 
@@ -28,8 +30,10 @@ function Login() {
     e.preventDefault();
     try {
       const data = await loginUser(formData);
+
       const accessToken = data.access_token;
-      localStorage.setItem("accessToken", accessToken);
+      const userId = data.id;
+      login(userId,accessToken);
       navigate("/restaurants");
     } catch (error) {
       setError(error.message);

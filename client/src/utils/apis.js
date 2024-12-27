@@ -102,6 +102,16 @@ export const registerUser = async (formData) => {
   return await response.json();
 };
 
+export const getUserById = async (id) => {
+  const response = await fetch(`${SERVER_URL}/api/users/${id}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch user");
+  }
+  return await response.json();
+};
+
 export const fetchContactById = async (id) => {
   const response = await fetch(`${SERVER_URL}/api/contacts/${id}`, {
     headers: getAuthHeaders(),

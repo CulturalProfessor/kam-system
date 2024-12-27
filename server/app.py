@@ -10,7 +10,7 @@ from flask_jwt_extended import JWTManager
 import logging
 from logging.handlers import RotatingFileHandler
 import traceback
-
+from flask_migrate import Migrate
 
 def create_app():
     app = Flask(__name__)
@@ -19,6 +19,7 @@ def create_app():
 
     db.init_app(app)
     jwt = JWTManager(app)
+    migrate=Migrate(app,db)
     configure_logger(app)
 
     app.register_blueprint(restaurant_bp, url_prefix="/api")

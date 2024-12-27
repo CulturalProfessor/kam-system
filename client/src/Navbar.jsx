@@ -1,11 +1,12 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useUser } from "./utils/context";
 
 function Navbar() {
   const navigate = useNavigate();
-
+  const { logout } = useUser();
   const handleSignOut = () => {
-    localStorage.removeItem("accessToken");
+    logout();
     navigate("/login");
   };
 
@@ -36,7 +37,6 @@ function Navbar() {
                 background: "red",
               },
             }}
-            
           >
             Sign Out
           </Button>

@@ -42,7 +42,13 @@ def login_user():
             expires_delta=expires,
         )
         return (
-            jsonify({"message": "Login successful", "access_token": access_token}),
+            jsonify(
+                {
+                    "message": "Login successful",
+                    "id": user.id,
+                    "access_token": access_token,
+                }
+            ),
             200,
         )
     current_app.logger.error("Invalid email or password")
@@ -102,8 +108,6 @@ def get_user_by_id(user_id):
                 "email": user.email,
                 "phone": user.phone,
                 "role": user.role.value,
-                "created_at": user.created_at.isoformat(),
-                "updated_at": user.updated_at.isoformat(),
             }
         ),
         200,

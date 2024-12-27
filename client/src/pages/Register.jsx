@@ -13,6 +13,7 @@ import {
   Paper,
 } from "@mui/material";
 import { registerUser } from "../utils/apis";
+import { useUser } from "../utils/context";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ function Register() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +38,8 @@ function Register() {
     try {
       const data = await registerUser(formData);
       const accessToken = data.access_token;
-      localStorage.setItem("accessToken", accessToken);
+      const userId = data.id;
+      login(userId, accessToken);
       navigate("/restaurants");
     } catch (error) {
       setError(error.message);
