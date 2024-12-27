@@ -8,12 +8,12 @@ import RestaurantList from "./components/RestaurantList";
 import RestaurantForm from "./components//RestaurantForm";
 import ContactList from "./components/ContactList";
 import ContactForm from "./components//ContactForm";
-import Navbar from "./Navbar";
+import Navbar from "./components/Navbar";
 import InteractionList from "./components/InteractionList";
 import InteractionForm from "./components//InteractionForm";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import { UserProvider } from "./utils/context";
+import UserProvider from "./hooks/userProvider";
 
 function App() {
   return (

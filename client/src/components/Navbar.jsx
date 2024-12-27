@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { useUser } from "./utils/context";
+import { useUser } from "../hooks/useUser";
 
 function Navbar() {
   const navigate = useNavigate();

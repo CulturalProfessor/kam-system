@@ -13,7 +13,6 @@ import {
 import Loader from "./Loader";
 import PropTypes from "prop-types";
 import { fetchRestaurantById, saveRestaurant } from "../utils/apis";
-import { useUser } from "../utils/context";
 
 RestaurantForm.propTypes = {
   isEdit: PropTypes.bool,
@@ -32,8 +31,6 @@ function RestaurantForm({ isEdit }) {
     notes: "",
   });
   const [error, setError] = useState(null);
-  const {user}=useUser();
-  console.log(user);
   useEffect(() => {
     if (isEdit) {
       fetchRestaurantById(id)

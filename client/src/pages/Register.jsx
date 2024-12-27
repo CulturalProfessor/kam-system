@@ -13,7 +13,7 @@ import {
   Paper,
 } from "@mui/material";
 import { registerUser } from "../utils/apis";
-import { useUser } from "../utils/context";
+import { useUser } from "../hooks/useUser";
 
 function Register() {
   const [formData, setFormData] = useState({

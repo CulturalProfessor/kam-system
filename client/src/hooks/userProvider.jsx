@@ -1,15 +1,18 @@
-/* eslint-disable react-refresh/only-export-components */
-import { useState, createContext, useContext } from "react";
-import Proptypes from "prop-types";
-import { getUserById } from "./apis";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { UserContext } from "./useUser";
+import { getUserById } from "../utils/apis";
 
-export const UserContext = createContext();
+export default function UserProvider({ children }) {
+  const [user, setUser] = useState(null);
 
-export function UserProvider({ children }) {
-  UserProvider.propTypes = {
-    children: Proptypes.node.isRequired,
-  };
-  const [user, setUser] = useState();
+  useEffect(() => {
+    async function fetchUser() {
+      const localStorageUser = await getLocalStorageUser();
+      setUser(localStorageUser);
+    }
+    fetchUser();
+  }, []);
 
   const login = async (userId, accessToken) => {
     localStorage.setItem("accessToken", accessToken);
@@ -17,6 +20,7 @@ export function UserProvider({ children }) {
     const localStorageUser = await getLocalStorageUser();
     setUser(localStorageUser);
   };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("userId");
@@ -30,17 +34,13 @@ export function UserProvider({ children }) {
   );
 }
 
-export function useUser() {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
-  return context;
-}
+UserProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 async function getLocalStorageUser() {
   const userId = localStorage.getItem("userId");
-  if (userId === undefined) {
+  if (!userId) {
     console.warn("No userId found in localStorage");
     return null;
   }
