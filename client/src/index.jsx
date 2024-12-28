@@ -14,6 +14,8 @@ import InteractionForm from "./components//InteractionForm";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import UserProvider from "./hooks/userProvider";
+import UserList from "./components/UserList";
+import UserForm from "./components/UserForm";
 
 function App() {
   return (
@@ -50,6 +52,9 @@ function App() {
             path="/interactions/edit/:id"
             element={<InteractionForm isEdit={true} />}
           />
+          <Route path="/users" element={<UserList />} />
+          <Route path="/users/new" element={<UserForm isEdit={false} />} />
+          <Route path="/users/edit/:id" element={<UserForm isEdit={true} />} />
         </Routes>
       </Router>
     </UserProvider>

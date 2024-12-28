@@ -102,6 +102,41 @@ export const registerUser = async (formData) => {
   return await response.json();
 };
 
+export const addRoleBasedUser = async (formData) => {
+  const response = await fetch(`${SERVER_URL}/api/users/new`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(formData),
+  });
+
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.error || "Error adding role based user");
+  }
+
+  return await response.json();
+};
+
+export const fetchUsersFromCurrentRole = async (currentUser) => {
+  const response = await fetch(`${SERVER_URL}/api/users/roles/${currentUser.id}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch users");
+  }
+  return await response.json();
+};
+
+export const deleteUser = async (id) => {
+  const response = await fetch(`${SERVER_URL}/api/users/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete user");
+  }
+};
+
 export const getUserById = async (id) => {
   const response = await fetch(`${SERVER_URL}/api/users/${id}`, {
     headers: getAuthHeaders(),

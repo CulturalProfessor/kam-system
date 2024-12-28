@@ -1,12 +1,22 @@
 from flask import Blueprint, request, jsonify, current_app
 from models import db, User, UserRole
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from utils import bcrypt
 from datetime import timedelta
 
 user_bp = Blueprint("user_bp", __name__)
 
 expires = timedelta(days=3)
+
+
+def can_create_user(current_user_role, new_user_role):
+    if current_user_role == UserRole.ADMIN and (
+        new_user_role == UserRole.KAM or new_user_role == UserRole.MANAGER
+    ):
+        return True
+    if current_user_role == UserRole.KAM and new_user_role == UserRole.MANAGER:
+        return True
+    return False
 
 
 @user_bp.route("/users", methods=["GET"])
@@ -24,6 +34,31 @@ def get_users():
                 "updated_at": u.updated_at.isoformat(),
             }
             for u in users
+        ]
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return jsonify({"error": str(e)}), 400
+
+
+@user_bp.route("/users/roles/<int:user_id>", methods=["GET"])
+@jwt_required()
+def get_users_by_currentUserRole(user_id):
+    current_user = User.query.get_or_404(user_id)
+    try:
+        users = User.query.all()
+        result = [
+            {
+                "id": u.id,
+                "name": u.name,
+                "email": u.email,
+                "phone": u.phone,
+                "role": u.role.value,
+                "created_at": u.created_at.isoformat(),
+                "updated_at": u.updated_at.isoformat(),
+            }
+            for u in users
+            if can_create_user(current_user.role, u.role)
         ]
         return jsonify(result), 200
     except Exception as e:
@@ -84,6 +119,49 @@ def create_user():
                     "message": "User created",
                     "id": new_user.id,
                     "access_token": access_token,
+                }
+            ),
+            201,
+        )
+    except KeyError as e:
+        current_app.logger.error(f"Invalid role: {e}")
+        return jsonify({"error": f"Invalid role"}), 400
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(str(e))
+        return jsonify({"error": str(e)}), 400
+
+
+@user_bp.route("/users/new", methods=["POST"])
+@jwt_required()
+def add_role_based_user():
+    data = request.get_json()
+    try:
+        password_hash = bcrypt.generate_password_hash(data.get("password")).decode(
+            "utf-8"
+        )
+        data.get("password")
+        new_user = User(
+            name=data.get("name"),
+            email=data.get("email"),
+            phone=data.get("phone"),
+            password_hash=password_hash,
+            role=UserRole[data.get("role", "KAM").upper()],
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+        return (
+            jsonify(
+                {
+                    "message": "User created",
+                    "user": {
+                        "id": new_user.id,
+                        "name": new_user.name,
+                        "email": new_user.email,
+                        "phone": new_user.phone,
+                        "role": new_user.role.value,
+                    },
                 }
             ),
             201,
