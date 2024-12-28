@@ -29,7 +29,9 @@ function Navbar() {
           <Button color="inherit" component={RouterLink} to="/users">
             Users
           </Button>
-
+          <Button color="inherit" component={RouterLink} to="/metrics">
+            Metrics
+          </Button>
           <Button
             color="inherit"
             onClick={handleSignOut}

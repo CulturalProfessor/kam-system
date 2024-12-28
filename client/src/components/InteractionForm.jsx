@@ -81,22 +81,33 @@ function InteractionForm({ isEdit }) {
   };
 
   const handleAutofill = () => {
-    const randomIndex = Math.floor(Math.random() * restaurants.length);
-    const randomRestaurant = restaurants[randomIndex];
-    const contactsForRestaurant = contacts.filter(
+    if (restaurants.length === 0) return;
+  
+    const randomRestaurant =
+      restaurants[Math.floor(Math.random() * restaurants.length)] || {};
+  
+    const validContacts = contacts.filter(
       (contact) => contact.restaurant_id === randomRestaurant.id
     );
-
+  
     setFormData({
       interaction_date: new Date().toISOString().split("T")[0],
-      type: "Call",
-      outcome: "Successful",
-      details: "Sample interaction details",
-      duration_minutes: 30,
-      restaurant_id: randomRestaurant.id,
-      contact_id: contactsForRestaurant[0]?.id || "",
+      type: ["Call", "Meeting", "Email", "Site_Visit", "Follow_Up"][
+        Math.floor(Math.random() * 5)
+      ],
+      outcome: ["Successful", "Needs_Follow_Up", "No_Response", "Cancelled"][
+        Math.floor(Math.random() * 4)
+      ],
+      details: "Random interaction details",
+      duration_minutes: Math.floor(Math.random() * 120) + 1,
+      restaurant_id: randomRestaurant.id || "",
+      contact_id:
+        validContacts.length > 0
+          ? validContacts[Math.floor(Math.random() * validContacts.length)].id
+          : "",
     });
   };
+  
 
   if (isEdit && !formData.type) {
     return <Loader />;

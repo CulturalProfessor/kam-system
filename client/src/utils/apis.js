@@ -28,6 +28,60 @@ export const deleteRestaurant = async (id) => {
   }
 };
 
+export const getAverageInteractionDuration = async (restaurantId) => {
+  const response = await fetch(
+    `${SERVER_URL}/api/restaurants/${restaurantId}/average_interaction_duration`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch average interaction duration");
+  }
+  return await response.json();
+};
+
+export const getAverageInteractionDurationAllRestaurants = async () => {
+  const response = await fetch(
+    `${SERVER_URL}/api/restaurants/average_interaction_duration`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!response.ok) {
+    throw new Error(
+      "Failed to fetch average interaction duration for all restaurants"
+    );
+  }
+  return await response.json();
+};
+
+export const getUnderperformingRestaurants = async () => {
+  const response = await fetch(
+    `${SERVER_URL}/api/restaurants/underperforming`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch underperforming restaurants");
+  }
+  return await response.json();
+};
+
+export const getPerformanceScores = async () => {
+  const response = await fetch(
+    `${SERVER_URL}/api/restaurants/performance_score`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch performance scores");
+  }
+  return await response.json();
+};
+
 export const fetchInteractions = async () => {
   const response = await fetch(`${SERVER_URL}/api/interactions`, {
     headers: getAuthHeaders(),
@@ -118,9 +172,12 @@ export const addRoleBasedUser = async (formData) => {
 };
 
 export const fetchUsersFromCurrentRole = async (currentUser) => {
-  const response = await fetch(`${SERVER_URL}/api/users/roles/${currentUser.id}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await fetch(
+    `${SERVER_URL}/api/users/roles/${currentUser.id}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch users");
   }

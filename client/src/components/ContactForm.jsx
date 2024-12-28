@@ -62,20 +62,42 @@ function ContactForm({ isEdit }) {
     }
   };
 
+  const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
+
   const handleAutofill = () => {
+    const randomNames = ["John Doe", "Jane Smith", "Alice Brown", "Bob White"];
+    const randomRoles = ["Manager", "Supervisor", "Chef", "Coordinator"];
+    const randomEmails = [
+      "john.doe@example.com",
+      "jane.smith@example.com",
+      "alice.brown@example.com",
+      "bob.white@example.com",
+    ];
+    const randomPhones = [
+      "1234567890",
+      "9876543210",
+      "5556667777",
+      "1112223333",
+    ];
+    const randomMethods = ["Phone", "WhatsApp", "Email", "SMS"];
+    const randomTimeZones = ["PST", "EST", "CST", "MST"];
+  
     const randomRestaurant =
-      restaurants[Math.floor(Math.random() * restaurants.length)];
+      restaurants.length > 0
+        ? getRandomItem(restaurants)
+        : { id: "", name: "No Restaurant Available" };
+  
     setFormData({
-      name: "John Doe",
-      role: "Manager",
-      email: "john@gmail.com",
-      phone: "1254567890",
-      preferred_contact_method: "Email",
-      time_zone: "PST",
+      name: getRandomItem(randomNames),
+      role: getRandomItem(randomRoles),
+      email: getRandomItem(randomEmails),
+      phone: getRandomItem(randomPhones),
+      preferred_contact_method: getRandomItem(randomMethods),
+      time_zone: getRandomItem(randomTimeZones),
       restaurant_id: randomRestaurant.id,
     });
   };
-
+  
   if (isEdit && !formData.name) {
     return <Loader />;
   }
@@ -129,11 +151,10 @@ function ContactForm({ isEdit }) {
             required
             sx={{ marginTop: 1 }}
           >
-            <MenuItem value="Call">Call</MenuItem>
-            <MenuItem value="Meeting">Meeting</MenuItem>
+            <MenuItem value="Phone">Phone</MenuItem>
             <MenuItem value="Email">Email</MenuItem>
-            <MenuItem value="Site Visit">Site Visit</MenuItem>
-            <MenuItem value="Follow-Up">Follow-Up</MenuItem>
+            <MenuItem value="SMS">SMS</MenuItem>
+            <MenuItem value="Whatsapp">Whatsapp</MenuItem>
           </Select>
         </FormControl>
         <TextField

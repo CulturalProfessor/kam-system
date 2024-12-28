@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import UserProvider from "./hooks/userProvider";
 import UserList from "./components/UserList";
 import UserForm from "./components/UserForm";
+import Metrics from "./components/Metric";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="/users" element={<UserList />} />
           <Route path="/users/new" element={<UserForm isEdit={false} />} />
           <Route path="/users/edit/:id" element={<UserForm isEdit={true} />} />
+          <Route path="/metrics" element={<Metrics />} />
         </Routes>
       </Router>
     </UserProvider>

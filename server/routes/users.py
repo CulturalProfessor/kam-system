@@ -10,9 +10,7 @@ expires = timedelta(days=3)
 
 
 def can_create_user(current_user_role, new_user_role):
-    if current_user_role == UserRole.ADMIN and (
-        new_user_role == UserRole.KAM or new_user_role == UserRole.MANAGER
-    ):
+    if current_user_role == UserRole.ADMIN:
         return True
     if current_user_role == UserRole.KAM and new_user_role == UserRole.MANAGER:
         return True

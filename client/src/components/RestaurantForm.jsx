@@ -54,15 +54,49 @@ function RestaurantForm({ isEdit }) {
     }
   };
 
+  const getRandomItem = (array) =>
+    array[Math.floor(Math.random() * array.length)];
+  const getRandomDate = () => {
+    const start = new Date(2024, 0, 1);
+    const end = new Date();
+    return new Date(
+      start.getTime() + Math.random() * (end.getTime() - start.getTime())
+    )
+      .toISOString()
+      .split("T")[0];
+  };
+
   const handleAutofill = () => {
+    const randomNames = [
+      "Ocean Breeze Cafe",
+      "Mountain View Diner",
+      "City Lights Grill",
+      "Lakeside Eatery",
+    ];
+    const randomAddresses = [
+      "45 Seaside Ave, Beach City",
+      "12 Hilltop Rd, Alpine Town",
+      "89 Downtown Blvd, Metro City",
+      "33 Lakeview Ln, Serenity Bay",
+    ];
+    const randomStatuses = ["New", "Contacted", "Converted", "Lost"];
+    const randomFrequencies = ["Daily", "Weekly", "Monthly"];
+    const randomNotes = [
+      "Follow-up call scheduled.",
+      "Awaiting response on proposal.",
+      "Discussing seasonal discounts.",
+      "Needs detailed pricing breakdown.",
+    ];
+    const randomRevenue = Math.floor(Math.random() * 100000);
+
     setFormData({
-      name: "Sample Restaurant",
-      address: "123 Test Street, Test City",
-      status: "Contacted",
-      call_frequency: "Weekly",
-      last_call_date: new Date().toISOString().split("T")[0],
-      revenue: 50000,
-      notes: "This is a sample note for testing autofill functionality.",
+      name: getRandomItem(randomNames),
+      address: getRandomItem(randomAddresses),
+      status: getRandomItem(randomStatuses),
+      call_frequency: getRandomItem(randomFrequencies),
+      last_call_date: getRandomDate(),
+      revenue: randomRevenue,
+      notes: getRandomItem(randomNotes),
     });
   };
 

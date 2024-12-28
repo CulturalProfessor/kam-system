@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Numeric
+from sqlalchemy import Numeric, func
 import enums
 
 db = SQLAlchemy()
@@ -65,6 +65,55 @@ class Restaurant(db.Model):
 
     def __repr__(self):
         return f"<Restaurant {self.name}>"
+
+    def total_interactions(self):
+        return len(self.interactions)
+
+    def last_interaction_date(self):
+        last_interaction = (
+            db.session.query(func.max(Interaction.interaction_date))
+            .filter_by(restaurant_id=self.id)
+            .scalar()
+        )
+        return last_interaction
+
+    def average_interaction_duration(self):
+        avg_duration = (
+            db.session.query(func.avg(Interaction.duration_minutes))
+            .filter_by(restaurant_id=self.id)
+            .scalar()
+        )
+        return avg_duration or 0
+
+    def total_revenue(self):
+        return self.revenue or 0
+
+    def is_underperforming(self):
+        recent_interaction = self.last_interaction_date()
+        if not recent_interaction:
+            return True
+        time_since_last_interaction = (datetime.utcnow() - recent_interaction).days
+        if time_since_last_interaction > 30 or self.total_revenue() < 1000:
+            return True
+
+        return False
+
+    def performance_score(self):
+        interaction_weight = 0.4
+        revenue_weight = 0.4
+        engagement_weight = 0.2
+
+        interaction_score = self.total_interactions()
+        revenue_score = (
+            float(self.total_revenue()) / 1000 if self.total_revenue() else 0
+        ) 
+        engagement_score = 1 if self.last_interaction_date() else 0
+
+        return (
+            (interaction_score * interaction_weight)
+            + (revenue_score * revenue_weight)
+            + (engagement_score * engagement_weight)
+        )
 
 
 class Contact(db.Model):

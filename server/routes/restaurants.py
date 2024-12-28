@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
+from sqlalchemy import func
 from models import db, Restaurant, RestaurantStatus, CallFrequency, Contact
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
@@ -174,4 +175,100 @@ def delete_restaurant(restaurant_id):
         current_app.logger.error(
             f"Error deleting restaurant with ID {restaurant_id}: {str(e)}"
         )
+        return jsonify({"error": str(e)}), 400
+
+
+@restaurant_bp.route(
+    "/restaurants/<int:restaurant_id>/average_interaction_duration", methods=["GET"]
+)
+@jwt_required()
+def get_average_interaction_duration(restaurant_id):
+    restaurant = Restaurant.query.get_or_404(restaurant_id)
+    try:
+        avg_duration = Restaurant.average_interaction_duration(restaurant)
+        current_app.logger.info(
+            f"Average interaction duration for restaurant {restaurant.id} fetched successfully."
+        )
+        return jsonify({"average_duration": avg_duration}), 200
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching average interaction duration for restaurant {restaurant.id}: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
+
+
+@restaurant_bp.route("/restaurants/average_interaction_duration", methods=["GET"])
+@jwt_required()
+def get_all_average_interaction_duration():
+    try:
+        restaurants = Restaurant.query.all()
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "average_interaction_duration": str(r.average_interaction_duration()).split(".")[0],
+            }
+            for r in restaurants
+        ]
+        current_app.logger.info("Fetched average interaction durations successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching average interaction durations: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
+
+
+@restaurant_bp.route("/restaurants/underperforming", methods=["GET"])
+@jwt_required()
+def get_underperforming_restaurants():
+    try:
+        restaurants = Restaurant.query.all()
+        for r in restaurants:
+            r.is_underperforming()
+        underperforming_restaurants = [r for r in restaurants if r.is_underperforming()]
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "last_interaction_date": (
+                    r.last_interaction_date().isoformat()
+                    if r.last_interaction_date()
+                    else None
+                ),
+                "time_since_last_interaction": (
+                    (datetime.utcnow() - r.last_interaction_date()).days
+                    if r.last_interaction_date()
+                    else None
+                ),
+                "revenue": r.revenue,
+            }
+            for r in underperforming_restaurants
+        ]
+        current_app.logger.info("Fetched underperforming restaurants successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching underperforming restaurants: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
+
+
+@restaurant_bp.route("/restaurants/performance_score", methods=["GET"])
+@jwt_required()
+def get_performance_scores():
+    try:
+        restaurants = Restaurant.query.all()
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "performance_score": str(r.performance_score()).split(".")[0],
+            }
+            for r in restaurants
+        ]
+        current_app.logger.info("Fetched performance scores successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(f"Error fetching performance scores: {str(e)}")
         return jsonify({"error": str(e)}), 400
