@@ -35,9 +35,10 @@ def get_users():
             }
             for u in users
         ]
+        current_app.logger.info(f"Fetched {len(users)} users successfully.")
         return jsonify(result), 200
     except Exception as e:
-        current_app.logger.error(str(e))
+        current_app.logger.error(f"Error fetching users: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
@@ -60,9 +61,10 @@ def get_users_by_currentUserRole(user_id):
             for u in users
             if can_create_user(current_user.role, u.role)
         ]
+        current_app.logger.info(f"Fetched users based on the current user's role: {current_user.role.value}.")
         return jsonify(result), 200
     except Exception as e:
-        current_app.logger.error(str(e))
+        current_app.logger.error(f"Error fetching users by role for user {user_id}: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
@@ -76,6 +78,7 @@ def login_user():
             additional_claims={"role": user.role.value, "email": user.email},
             expires_delta=expires,
         )
+        current_app.logger.info(f"User {user.id} logged in successfully.")
         return (
             jsonify(
                 {
@@ -86,7 +89,7 @@ def login_user():
             ),
             200,
         )
-    current_app.logger.error("Invalid email or password")
+    current_app.logger.warning(f"Failed login attempt for email {data.get('email')}.")
     return jsonify({"error": "Invalid email or password"}), 401
 
 
@@ -94,10 +97,7 @@ def login_user():
 def create_user():
     data = request.get_json()
     try:
-        password_hash = bcrypt.generate_password_hash(data.get("password")).decode(
-            "utf-8"
-        )
-        data.get("password")
+        password_hash = bcrypt.generate_password_hash(data.get("password")).decode("utf-8")
         new_user = User(
             name=data.get("name"),
             email=data.get("email"),
@@ -113,6 +113,7 @@ def create_user():
             expires_delta=expires,
         )
         db.session.commit()
+        current_app.logger.info(f"New user {new_user.id} created successfully.")
         return (
             jsonify(
                 {
@@ -124,11 +125,11 @@ def create_user():
             201,
         )
     except KeyError as e:
-        current_app.logger.error(f"Invalid role: {e}")
+        current_app.logger.error(f"Invalid role during user creation: {e}")
         return jsonify({"error": f"Invalid role"}), 400
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(str(e))
+        current_app.logger.error(f"Error creating user: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
@@ -137,10 +138,7 @@ def create_user():
 def add_role_based_user():
     data = request.get_json()
     try:
-        password_hash = bcrypt.generate_password_hash(data.get("password")).decode(
-            "utf-8"
-        )
-        data.get("password")
+        password_hash = bcrypt.generate_password_hash(data.get("password")).decode("utf-8")
         new_user = User(
             name=data.get("name"),
             email=data.get("email"),
@@ -151,6 +149,7 @@ def add_role_based_user():
 
         db.session.add(new_user)
         db.session.commit()
+        current_app.logger.info(f"New role-based user {new_user.id} created successfully.")
         return (
             jsonify(
                 {
@@ -167,29 +166,34 @@ def add_role_based_user():
             201,
         )
     except KeyError as e:
-        current_app.logger.error(f"Invalid role: {e}")
+        current_app.logger.error(f"Invalid role during user creation: {e}")
         return jsonify({"error": f"Invalid role"}), 400
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(str(e))
+        current_app.logger.error(f"Error creating role-based user: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
 @user_bp.route("/users/<int:user_id>", methods=["GET"])
 def get_user_by_id(user_id):
-    user = User.query.get_or_404(user_id)
-    return (
-        jsonify(
-            {
-                "id": user.id,
-                "name": user.name,
-                "email": user.email,
-                "phone": user.phone,
-                "role": user.role.value,
-            }
-        ),
-        200,
-    )
+    try:
+        user = User.query.get_or_404(user_id)
+        current_app.logger.info(f"User {user_id} fetched successfully.")
+        return (
+            jsonify(
+                {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "role": user.role.value,
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error fetching user {user_id}: {str(e)}")
+        return jsonify({"error": str(e)}), 400
 
 
 @user_bp.route("/users/<int:user_id>", methods=["PUT"])
@@ -202,13 +206,14 @@ def update_user(user_id):
         user.phone = data.get("phone", user.phone)
         user.role = UserRole[data.get("role", user.role.name).upper()]
         db.session.commit()
+        current_app.logger.info(f"User {user_id} updated successfully.")
         return jsonify({"message": "User updated"}), 200
     except KeyError as e:
-        current_app.logger.error(f"Invalid role: {e}")
+        current_app.logger.error(f"Invalid role during user update for user {user_id}: {e}")
         return jsonify({"error": f"Invalid role"}), 400
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(str(e))
+        current_app.logger.error(f"Error updating user {user_id}: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
@@ -218,8 +223,9 @@ def delete_user(user_id):
     try:
         db.session.delete(user)
         db.session.commit()
+        current_app.logger.info(f"User {user_id} deleted successfully.")
         return jsonify({"message": "User deleted"}), 200
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(str(e))
+        current_app.logger.error(f"Error deleting user {user_id}: {str(e)}")
         return jsonify({"error": str(e)}), 400

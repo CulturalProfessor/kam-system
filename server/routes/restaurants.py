@@ -1,28 +1,36 @@
-from flask import Blueprint, request, jsonify
-from models import db, Restaurant, RestaurantStatus, CallFrequency
+from flask import Blueprint, request, jsonify, current_app
+from models import db, Restaurant, RestaurantStatus, CallFrequency, Contact
 from datetime import datetime
 from flask_jwt_extended import jwt_required
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
 
+
 @restaurant_bp.route("/restaurants", methods=["GET"])
 @jwt_required()
 def get_restaurants():
-    restaurants = Restaurant.query.all()
-    result = [
-        {
-            "id": r.id,
-            "name": r.name,
-            "address": r.address,
-            "status": r.status.value if r.status else None,
-            "call_frequency": r.call_frequency.value if r.call_frequency else None,
-            "last_call_date": r.last_call_date.isoformat() if r.last_call_date else None,
-            "revenue": str(r.revenue) if r.revenue is not None else None,
-            "notes": r.notes,
-        }
-        for r in restaurants
-    ]
-    return jsonify(result), 200
+    try:
+        restaurants = Restaurant.query.all()
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "address": r.address,
+                "status": r.status.value if r.status else None,
+                "call_frequency": r.call_frequency.value if r.call_frequency else None,
+                "last_call_date": (
+                    r.last_call_date.isoformat() if r.last_call_date else None
+                ),
+                "revenue": str(r.revenue) if r.revenue is not None else None,
+                "notes": r.notes,
+            }
+            for r in restaurants
+        ]
+        current_app.logger.info("Fetched restaurants successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(f"Error fetching restaurants: {str(e)}")
+        return jsonify({"error": str(e)}), 400
 
 
 @restaurant_bp.route("/restaurants", methods=["POST"])
@@ -45,56 +53,74 @@ def create_restaurant():
         )
         db.session.add(new_restaurant)
         db.session.commit()
+        current_app.logger.info(f"Created restaurant with ID {new_restaurant.id}")
         return jsonify({"message": "Restaurant created", "id": new_restaurant.id}), 201
     except KeyError as e:
+        current_app.logger.error(f"Invalid value for key: {e}")
         return jsonify({"error": f"Invalid value: {e}"}), 400
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error creating restaurant: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
 @restaurant_bp.route("/restaurants/<int:restaurant_id>", methods=["GET"])
 @jwt_required()
 def get_restaurant_by_id(restaurant_id):
-    restaurant = Restaurant.query.get_or_404(restaurant_id)
-    return (
-        jsonify(
-            {
-                "id": restaurant.id,
-                "name": restaurant.name,
-                "address": restaurant.address,
-                "status": restaurant.status.value if restaurant.status else None,
-                "call_frequency": restaurant.call_frequency.value
-                if restaurant.call_frequency
-                else None,
-                "last_call_date": restaurant.last_call_date.isoformat()
-                if restaurant.last_call_date
-                else None,
-                "revenue": str(restaurant.revenue) if restaurant.revenue is not None else None,
-                "notes": restaurant.notes,
-                "contacts": [
-                    {
-                        "id": c.id,
-                        "name": c.name,
-                        "role": c.role,
-                        "email": c.email,
-                        "phone": c.phone,
-                    }
-                    for c in restaurant.contacts
-                ],
-                "interactions": [
-                    {
-                        "id": i.id,
-                        "type": i.type.value if i.type else None,
-                        "details": i.details,
-                        "interaction_date": i.interaction_date.isoformat(),
-                    }
-                    for i in restaurant.interactions
-                ],
-            }
-        ),
-        200,
-    )
+    try:
+        restaurant = Restaurant.query.get_or_404(restaurant_id)
+        current_app.logger.info(f"Fetched restaurant with ID {restaurant.id}")
+        return (
+            jsonify(
+                {
+                    "id": restaurant.id,
+                    "name": restaurant.name,
+                    "address": restaurant.address,
+                    "status": restaurant.status.value if restaurant.status else None,
+                    "call_frequency": (
+                        restaurant.call_frequency.value
+                        if restaurant.call_frequency
+                        else None
+                    ),
+                    "last_call_date": (
+                        restaurant.last_call_date.isoformat()
+                        if restaurant.last_call_date
+                        else None
+                    ),
+                    "revenue": (
+                        str(restaurant.revenue)
+                        if restaurant.revenue is not None
+                        else None
+                    ),
+                    "notes": restaurant.notes,
+                    "contacts": [
+                        {
+                            "id": c.id,
+                            "name": c.name,
+                            "role": c.role,
+                            "email": c.email,
+                            "phone": c.phone,
+                        }
+                        for c in restaurant.contacts
+                    ],
+                    "interactions": [
+                        {
+                            "id": i.id,
+                            "type": i.type.value if i.type else None,
+                            "details": i.details,
+                            "interaction_date": i.interaction_date.isoformat(),
+                        }
+                        for i in restaurant.interactions
+                    ],
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching restaurant with ID {restaurant_id}: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
 
 
 @restaurant_bp.route("/restaurants/<int:restaurant_id>", methods=["PUT"])
@@ -116,11 +142,16 @@ def update_restaurant(restaurant_id):
         restaurant.revenue = data.get("revenue", restaurant.revenue)
         restaurant.notes = data.get("notes", restaurant.notes)
         db.session.commit()
+        current_app.logger.info(f"Updated restaurant with ID {restaurant.id}")
         return jsonify({"message": "Restaurant updated"}), 200
     except KeyError as e:
+        current_app.logger.error(f"Invalid value for key: {e}")
         return jsonify({"error": f"Invalid value: {e}"}), 400
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(
+            f"Error updating restaurant with ID {restaurant_id}: {str(e)}"
+        )
         return jsonify({"error": str(e)}), 400
 
 
@@ -129,9 +160,18 @@ def update_restaurant(restaurant_id):
 def delete_restaurant(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     try:
+        contacts = Contact.query.filter_by(restaurant_id=restaurant_id).all()
+
+        for contact in contacts:
+            db.session.delete(contact)
+
         db.session.delete(restaurant)
         db.session.commit()
+        current_app.logger.info(f"Deleted restaurant with ID {restaurant.id}")
         return jsonify({"message": "Restaurant deleted"}), 200
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(
+            f"Error deleting restaurant with ID {restaurant_id}: {str(e)}"
+        )
         return jsonify({"error": str(e)}), 400

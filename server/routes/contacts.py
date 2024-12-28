@@ -1,5 +1,5 @@
-from flask import Blueprint, request, jsonify
-from models import db, Contact, PreferredContactMethod
+from flask import Blueprint, request, jsonify, current_app
+from models import Interaction, db, Contact, PreferredContactMethod
 from flask_jwt_extended import jwt_required
 
 contact_bp = Blueprint("contact_bp", __name__)
@@ -8,23 +8,30 @@ contact_bp = Blueprint("contact_bp", __name__)
 @contact_bp.route("/contacts", methods=["GET"])
 @jwt_required()
 def get_contacts():
-    contacts = Contact.query.all()
-    result = [
-        {
-            "id": c.id,
-            "name": c.name,
-            "role": c.role,
-            "email": c.email,
-            "phone": c.phone,
-            "preferred_contact_method": (
-                c.preferred_contact_method.value if c.preferred_contact_method else None
-            ),
-            "time_zone": c.time_zone,
-            "restaurant_id": c.restaurant_id,
-        }
-        for c in contacts
-    ]
-    return jsonify(result), 200
+    try:
+        contacts = Contact.query.all()
+        result = [
+            {
+                "id": c.id,
+                "name": c.name,
+                "role": c.role,
+                "email": c.email,
+                "phone": c.phone,
+                "preferred_contact_method": (
+                    c.preferred_contact_method.value
+                    if c.preferred_contact_method
+                    else None
+                ),
+                "time_zone": c.time_zone,
+                "restaurant_id": c.restaurant_id,
+            }
+            for c in contacts
+        ]
+        current_app.logger.info("Fetched contacts successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(f"Error fetching contacts: {str(e)}")
+        return jsonify({"error": str(e)}), 400
 
 
 @contact_bp.route("/contacts", methods=["POST"])
@@ -47,37 +54,47 @@ def create_contact():
         )
         db.session.add(new_contact)
         db.session.commit()
+        current_app.logger.info(f"Created contact with ID {new_contact.id}")
         return jsonify({"message": "Contact created", "id": new_contact.id}), 201
     except KeyError as e:
+        current_app.logger.error(f"Invalid value for key: {e}")
         return jsonify({"error": f"Invalid value: {e}"}), 400
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error creating contact: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
 
 @contact_bp.route("/contacts/<int:contact_id>", methods=["GET"])
 @jwt_required()
 def get_contact_by_id(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
-    return (
-        jsonify(
-            {
-                "id": contact.id,
-                "name": contact.name,
-                "role": contact.role,
-                "email": contact.email,
-                "phone": contact.phone,
-                "preferred_contact_method": (
-                    contact.preferred_contact_method.value
-                    if contact.preferred_contact_method
-                    else None
-                ),
-                "time_zone": contact.time_zone,
-                "restaurant_id": contact.restaurant_id,
-            }
-        ),
-        200,
-    )
+    try:
+        contact = Contact.query.get_or_404(contact_id)
+        current_app.logger.info(f"Fetched contact with ID {contact.id}")
+        return (
+            jsonify(
+                {
+                    "id": contact.id,
+                    "name": contact.name,
+                    "role": contact.role,
+                    "email": contact.email,
+                    "phone": contact.phone,
+                    "preferred_contact_method": (
+                        contact.preferred_contact_method.value
+                        if contact.preferred_contact_method
+                        else None
+                    ),
+                    "time_zone": contact.time_zone,
+                    "restaurant_id": contact.restaurant_id,
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching contact with ID {contact_id}: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
 
 
 @contact_bp.route("/contacts/<int:contact_id>", methods=["PUT"])
@@ -96,11 +113,16 @@ def update_contact(contact_id):
             ]
         contact.time_zone = data.get("time_zone", contact.time_zone)
         db.session.commit()
+        current_app.logger.info(f"Updated contact with ID {contact.id}")
         return jsonify({"message": "Contact updated"}), 200
     except KeyError as e:
+        current_app.logger.error(f"Invalid value for key: {e}")
         return jsonify({"error": f"Invalid value: {e}"}), 400
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(
+            f"Error updating contact with ID {contact_id}: {str(e)}"
+        )
         return jsonify({"error": str(e)}), 400
 
 
@@ -109,6 +131,10 @@ def update_contact(contact_id):
 def delete_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     try:
+        interactions = Interaction.query.filter_by(contact_id=contact_id).all()
+        for interaction in interactions:
+            db.session.delete(interaction)
+        db.session.commit()
         db.session.delete(contact)
         db.session.commit()
         return jsonify({"message": "Contact deleted"}), 200

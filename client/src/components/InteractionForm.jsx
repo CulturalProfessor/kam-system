@@ -136,8 +136,8 @@ function InteractionForm({ isEdit }) {
             <MenuItem value="Call">Call</MenuItem>
             <MenuItem value="Meeting">Meeting</MenuItem>
             <MenuItem value="Email">Email</MenuItem>
-            <MenuItem value="Site Visit">Site Visit</MenuItem>
-            <MenuItem value="Follow-Up">Follow-Up</MenuItem>
+            <MenuItem value="Site_Visit">Site Visit</MenuItem>
+            <MenuItem value="Follow_Up">Follow-Up</MenuItem>
           </Select>
         </FormControl>
 
