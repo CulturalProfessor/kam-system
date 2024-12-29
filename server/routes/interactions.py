@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from models import db, Interaction, InteractionType, InteractionOutcome
 from datetime import datetime
 from flask_jwt_extended import jwt_required
+from utils import invalidate_cache
 
 interaction_bp = Blueprint("interaction_bp", __name__)
 
@@ -51,6 +52,7 @@ def create_interaction():
         )
         db.session.add(new_interaction)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Created interaction with ID {new_interaction.id}")
         return (
             jsonify({"message": "Interaction created", "id": new_interaction.id}),
@@ -110,6 +112,7 @@ def update_interaction(interaction_id):
                 data["interaction_date"], "%Y-%m-%d"
             )
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Updated interaction with ID {interaction.id}")
         return jsonify({"message": "Interaction updated"}), 200
     except KeyError as e:
@@ -128,6 +131,7 @@ def delete_interaction(interaction_id):
     try:
         db.session.delete(interaction)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Deleted interaction with ID {interaction.id}")
         return jsonify({"message": "Interaction deleted"}), 200
     except Exception as e:

@@ -1,18 +1,12 @@
 from flask import Blueprint, request, jsonify, current_app
-from sqlalchemy import func
 from models import db, Restaurant, RestaurantStatus, CallFrequency, Contact
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask_jwt_extended import jwt_required
-from extensions import cache, redis_client
+from extensions import cache
+from utils import invalidate_cache
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
 
-
-def invalidate_cache():
-    cache.delete("average_interaction_duration_all")
-    cache.delete("performance_score_all")
-    cache.delete("underperforming_restaurants")
-    cache.delete("test_average_interaction_duration_all")
 
 @restaurant_bp.route("/restaurants", methods=["GET"])
 @jwt_required()
@@ -187,6 +181,7 @@ def delete_restaurant(restaurant_id):
         )
         return jsonify({"error": str(e)}), 400
 
+
 @restaurant_bp.route("/restaurants/underperforming", methods=["GET"])
 @jwt_required()
 @cache.cached(timeout=300, key_prefix="underperforming_restaurants")
@@ -243,9 +238,10 @@ def get_performance_scores():
         current_app.logger.error(f"Error fetching performance scores: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
+
 @restaurant_bp.route("/restaurants/average_interaction_duration", methods=["GET"])
 @jwt_required()
-@cache.cached(timeout=300,key_prefix="average_interaction_duration_all")
+@cache.cached(timeout=300, key_prefix="average_interaction_duration_all")
 def get_all_average_interaction_duration():
     try:
         restaurants = Restaurant.query.all()
@@ -266,7 +262,7 @@ def get_all_average_interaction_duration():
             f"Error fetching average interaction durations: {str(e)}"
         )
         return jsonify({"error": str(e)}), 400
-    
+
 
 @restaurant_bp.route("/restaurants/average_interaction_duration/test", methods=["GET"])
 @cache.cached(timeout=300, key_prefix="test_average_interaction_duration_all")
@@ -290,9 +286,11 @@ def test_get_all_average_interaction_duration():
             f"Error fetching average interaction durations: {str(e)}"
         )
         return jsonify({"error": str(e)}), 400
-    
 
-@restaurant_bp.route("/restaurants/average_interaction_duration/without_cache/test", methods=["GET"])
+
+@restaurant_bp.route(
+    "/restaurants/average_interaction_duration/without_cache/test", methods=["GET"]
+)
 def test_get_all_average_interaction_duration_without_cache():
     try:
         restaurants = Restaurant.query.all()

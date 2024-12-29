@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from models import Interaction, db, Contact, PreferredContactMethod
 from flask_jwt_extended import jwt_required
+from utils import invalidate_cache
 
 contact_bp = Blueprint("contact_bp", __name__)
 
@@ -54,6 +55,7 @@ def create_contact():
         )
         db.session.add(new_contact)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Created contact with ID {new_contact.id}")
         return jsonify({"message": "Contact created", "id": new_contact.id}), 201
     except KeyError as e:
@@ -113,6 +115,7 @@ def update_contact(contact_id):
             ]
         contact.time_zone = data.get("time_zone", contact.time_zone)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Updated contact with ID {contact.id}")
         return jsonify({"message": "Contact updated"}), 200
     except KeyError as e:
@@ -137,6 +140,7 @@ def delete_contact(contact_id):
         db.session.commit()
         db.session.delete(contact)
         db.session.commit()
+        invalidate_cache()
         return jsonify({"message": "Contact deleted"}), 200
     except Exception as e:
         db.session.rollback()
