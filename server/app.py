@@ -11,16 +11,25 @@ import logging
 from logging.handlers import RotatingFileHandler
 import traceback
 from flask_migrate import Migrate
+from extensions import cache, jwt, redis_client
+
 
 def create_app():
     app = Flask(__name__)
     CORS(app)
     app.config.from_object(Config)
 
+    app.config["CACHE_TYPE"] = "redis"
+    app.config["CACHE_REDIS_HOST"] = "localhost"
+    app.config["CACHE_REDIS_PORT"] = 6379
+    app.config["CACHE_REDIS_DB"] = 0
+    app.config["CACHE_REDIS_URL"] = "redis://localhost:6379/0"
     db.init_app(app)
-    jwt = JWTManager(app)
-    migrate=Migrate(app,db)
+    jwt.init_app(app)
+    cache.init_app(app)
+    migrate = Migrate(app, db)
     configure_logger(app)
+    redis_client.ping()
 
     app.register_blueprint(restaurant_bp, url_prefix="/api")
     app.register_blueprint(contact_bp, url_prefix="/api")

@@ -3,9 +3,16 @@ from sqlalchemy import func
 from models import db, Restaurant, RestaurantStatus, CallFrequency, Contact
 from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required
+from extensions import cache, redis_client
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
 
+
+def invalidate_cache():
+    cache.delete("average_interaction_duration_all")
+    cache.delete("performance_score_all")
+    cache.delete("underperforming_restaurants")
+    cache.delete("test_average_interaction_duration_all")
 
 @restaurant_bp.route("/restaurants", methods=["GET"])
 @jwt_required()
@@ -54,6 +61,7 @@ def create_restaurant():
         )
         db.session.add(new_restaurant)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Created restaurant with ID {new_restaurant.id}")
         return jsonify({"message": "Restaurant created", "id": new_restaurant.id}), 201
     except KeyError as e:
@@ -143,6 +151,7 @@ def update_restaurant(restaurant_id):
         restaurant.revenue = data.get("revenue", restaurant.revenue)
         restaurant.notes = data.get("notes", restaurant.notes)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Updated restaurant with ID {restaurant.id}")
         return jsonify({"message": "Restaurant updated"}), 200
     except KeyError as e:
@@ -168,6 +177,7 @@ def delete_restaurant(restaurant_id):
 
         db.session.delete(restaurant)
         db.session.commit()
+        invalidate_cache()
         current_app.logger.info(f"Deleted restaurant with ID {restaurant.id}")
         return jsonify({"message": "Restaurant deleted"}), 200
     except Exception as e:
@@ -177,50 +187,9 @@ def delete_restaurant(restaurant_id):
         )
         return jsonify({"error": str(e)}), 400
 
-
-@restaurant_bp.route(
-    "/restaurants/<int:restaurant_id>/average_interaction_duration", methods=["GET"]
-)
-@jwt_required()
-def get_average_interaction_duration(restaurant_id):
-    restaurant = Restaurant.query.get_or_404(restaurant_id)
-    try:
-        avg_duration = Restaurant.average_interaction_duration(restaurant)
-        current_app.logger.info(
-            f"Average interaction duration for restaurant {restaurant.id} fetched successfully."
-        )
-        return jsonify({"average_duration": avg_duration}), 200
-    except Exception as e:
-        current_app.logger.error(
-            f"Error fetching average interaction duration for restaurant {restaurant.id}: {str(e)}"
-        )
-        return jsonify({"error": str(e)}), 400
-
-
-@restaurant_bp.route("/restaurants/average_interaction_duration", methods=["GET"])
-@jwt_required()
-def get_all_average_interaction_duration():
-    try:
-        restaurants = Restaurant.query.all()
-        result = [
-            {
-                "id": r.id,
-                "name": r.name,
-                "average_interaction_duration": str(r.average_interaction_duration()).split(".")[0],
-            }
-            for r in restaurants
-        ]
-        current_app.logger.info("Fetched average interaction durations successfully")
-        return jsonify(result), 200
-    except Exception as e:
-        current_app.logger.error(
-            f"Error fetching average interaction durations: {str(e)}"
-        )
-        return jsonify({"error": str(e)}), 400
-
-
 @restaurant_bp.route("/restaurants/underperforming", methods=["GET"])
 @jwt_required()
+@cache.cached(timeout=300, key_prefix="underperforming_restaurants")
 def get_underperforming_restaurants():
     try:
         restaurants = Restaurant.query.all()
@@ -256,6 +225,7 @@ def get_underperforming_restaurants():
 
 @restaurant_bp.route("/restaurants/performance_score", methods=["GET"])
 @jwt_required()
+@cache.cached(timeout=300, key_prefix="performance_score_all")
 def get_performance_scores():
     try:
         restaurants = Restaurant.query.all()
@@ -271,4 +241,75 @@ def get_performance_scores():
         return jsonify(result), 200
     except Exception as e:
         current_app.logger.error(f"Error fetching performance scores: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+
+@restaurant_bp.route("/restaurants/average_interaction_duration", methods=["GET"])
+@jwt_required()
+@cache.cached(timeout=300,key_prefix="average_interaction_duration_all")
+def get_all_average_interaction_duration():
+    try:
+        restaurants = Restaurant.query.all()
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "average_interaction_duration": str(
+                    r.average_interaction_duration()
+                ).split(".")[0],
+            }
+            for r in restaurants
+        ]
+        current_app.logger.info("Fetched average interaction durations successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching average interaction durations: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
+    
+
+@restaurant_bp.route("/restaurants/average_interaction_duration/test", methods=["GET"])
+@cache.cached(timeout=300, key_prefix="test_average_interaction_duration_all")
+def test_get_all_average_interaction_duration():
+    try:
+        restaurants = Restaurant.query.all()
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "average_interaction_duration": str(
+                    r.average_interaction_duration()
+                ).split(".")[0],
+            }
+            for r in restaurants
+        ]
+        current_app.logger.info("Fetched average interaction durations successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching average interaction durations: {str(e)}"
+        )
+        return jsonify({"error": str(e)}), 400
+    
+
+@restaurant_bp.route("/restaurants/average_interaction_duration/without_cache/test", methods=["GET"])
+def test_get_all_average_interaction_duration_without_cache():
+    try:
+        restaurants = Restaurant.query.all()
+        result = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "average_interaction_duration": str(
+                    r.average_interaction_duration()
+                ).split(".")[0],
+            }
+            for r in restaurants
+        ]
+        current_app.logger.info("Fetched average interaction durations successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        current_app.logger.error(
+            f"Error fetching average interaction durations: {str(e)}"
+        )
         return jsonify({"error": str(e)}), 400
