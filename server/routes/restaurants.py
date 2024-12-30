@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Restaurant, RestaurantStatus, CallFrequency, Contact
+from models import Interaction, db, Restaurant, RestaurantStatus, CallFrequency, Contact
 from datetime import datetime
 from flask_jwt_extended import jwt_required
 from extensions import cache
@@ -165,7 +165,10 @@ def delete_restaurant(restaurant_id):
     restaurant = Restaurant.query.get_or_404(restaurant_id)
     try:
         contacts = Contact.query.filter_by(restaurant_id=restaurant_id).all()
+        interactions = Interaction.query.filter_by(restaurant_id=restaurant_id).all()
 
+        for interaction in interactions:
+            db.session.delete(interaction)
         for contact in contacts:
             db.session.delete(contact)
 
