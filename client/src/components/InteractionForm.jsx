@@ -162,8 +162,8 @@ function InteractionForm({ isEdit }) {
             sx={{ marginTop: 1 }}
           >
             <MenuItem value="Successful">Success</MenuItem>
-            <MenuItem value="Needs Follow-Up">Needs Follow-Up</MenuItem>
-            <MenuItem value="No Response">No Response</MenuItem>
+            <MenuItem value="Needs_Follow_Up">Needs Follow-Up</MenuItem>
+            <MenuItem value="No_Response">No Response</MenuItem>
             <MenuItem value="Cancelled">Cancelled</MenuItem>
           </Select>
         </FormControl>
