@@ -1,13 +1,12 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, current_app, jsonify
+from flask import Flask, app, current_app, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from logging.handlers import RotatingFileHandler
 import logging
 import traceback
-
 from config import Config
 from models import db
 from extensions import cache, jwt, redis_client
@@ -15,11 +14,15 @@ from routes.restaurants import restaurant_bp
 from routes.contacts import contact_bp
 from routes.interactions import interaction_bp
 from routes.users import user_bp
+from routes.health import health_bp
+from apscheduler.schedulers.background import BackgroundScheduler
+from utils import configure_scheduler
 
 load_dotenv()
 
+
 def create_app():
-    app = Flask(__name__)
+    app = Flask("KAM")
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -27,17 +30,19 @@ def create_app():
     cache.init_app(app)
     Migrate(app, db)
     CORS(app)
- 
+    configure_scheduler(app)
+    
     try:
         redis_client.ping()
-        current_app.logger.info("Redis connection successful")
+        print("Redis connection successful")
     except Exception as e:
-        app.logger.error(f"Redis connection failed: {e}")
+        print(f"Error connecting to Redis: {str(e)}")
 
     app.register_blueprint(restaurant_bp, url_prefix="/api")
     app.register_blueprint(contact_bp, url_prefix="/api")
     app.register_blueprint(interaction_bp, url_prefix="/api")
     app.register_blueprint(user_bp, url_prefix="/api")
+    app.register_blueprint(health_bp, url_prefix="/api")
 
     @app.route("/", methods=["GET"])
     def hello_world():
@@ -74,3 +79,7 @@ if __name__ == "__main__":
     debug_mode = os.getenv("DEBUG", "True").lower() == "true"
     port = int(os.getenv("PORT", 5000))
     flask_app.run(host="0.0.0.0", port=port, debug=debug_mode)
+
+
+flask_app = create_app()
+
