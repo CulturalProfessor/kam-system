@@ -5,12 +5,12 @@ import {
   useLocation,
 } from "react-router-dom";
 import RestaurantList from "./components/RestaurantList";
-import RestaurantForm from "./components//RestaurantForm";
+import RestaurantForm from "./components/RestaurantForm";
 import ContactList from "./components/ContactList";
-import ContactForm from "./components//ContactForm";
+import ContactForm from "./components/ContactForm";
 import Navbar from "./components/Navbar";
 import InteractionList from "./components/InteractionList";
-import InteractionForm from "./components//InteractionForm";
+import InteractionForm from "./components/InteractionForm";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import UserProvider from "./hooks/userProvider";
@@ -65,13 +65,8 @@ function App() {
 
 function ConditionalNavbar() {
   const location = useLocation();
-
   const hideNavbarRoutes = ["/", "/login"];
-  if (hideNavbarRoutes.includes(location.pathname)) {
-    return null;
-  }
-
-  return <Navbar />;
+  return hideNavbarRoutes.includes(location.pathname) ? null : <Navbar />;
 }
 
 export default App;
