@@ -1,10 +1,14 @@
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box, IconButton } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
+import { useThemeContext } from "../hooks/useTheme";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
 
 function Navbar() {
   const navigate = useNavigate();
   const { logout } = useUser();
+  const { mode, toggleTheme } = useThemeContext();
+
   const handleSignOut = () => {
     logout();
     navigate("/login");
@@ -32,6 +36,13 @@ function Navbar() {
           <Button color="inherit" component={RouterLink} to="/metrics">
             Metrics
           </Button>
+          <IconButton
+            sx={{ ml: 1 }}
+            onClick={toggleTheme}
+            color="inherit"
+          >
+            {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
           <Button
             color="inherit"
             onClick={handleSignOut}
