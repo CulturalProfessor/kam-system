@@ -72,4 +72,5 @@ if __name__ == "__main__":
     with flask_app.app_context():
         db.create_all()
     debug_mode = os.getenv("DEBUG", "True").lower() == "true"
-    flask_app.run(debug=debug_mode)
+    port = int(os.getenv("PORT", 5000))
+    flask_app.run(host="0.0.0.0", port=port, debug=debug_mode)
