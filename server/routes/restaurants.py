@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import Interaction, db, Restaurant, RestaurantStatus, CallFrequency, Contact
+from db.models import Interaction, db, Restaurant, RestaurantStatus, CallFrequency, Contact
 from datetime import datetime
 from flask_jwt_extended import jwt_required
-from extensions import cache
-from utils import invalidate_cache
+from  lib.extensions import cache
+from  lib.utils import invalidate_cache
 
 restaurant_bp = Blueprint("restaurant_bp", __name__)
 

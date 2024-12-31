@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import Interaction, db, Contact, PreferredContactMethod
+from db.models import Interaction, db, Contact, PreferredContactMethod
 from flask_jwt_extended import jwt_required
-from utils import invalidate_cache
+from  lib.utils import invalidate_cache
 
 contact_bp = Blueprint("contact_bp", __name__)
 

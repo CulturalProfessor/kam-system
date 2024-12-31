@@ -1,6 +1,6 @@
 from flask_bcrypt import Bcrypt
 import requests
-from extensions import cache
+from  lib.extensions import cache
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 

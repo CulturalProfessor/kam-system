@@ -7,16 +7,16 @@ from flask_jwt_extended import JWTManager
 from logging.handlers import RotatingFileHandler
 import logging
 import traceback
-from config import Config
-from models import db
-from extensions import cache, jwt, redis_client
+from  lib.config import Config
+from db.models import db
+from  lib.extensions import cache, jwt, redis_client
 from routes.restaurants import restaurant_bp
 from routes.contacts import contact_bp
 from routes.interactions import interaction_bp
 from routes.users import user_bp
 from routes.health import health_bp
 from apscheduler.schedulers.background import BackgroundScheduler
-from utils import configure_scheduler
+from  lib.utils import configure_scheduler
 
 load_dotenv()
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import db, User, UserRole
+from db.models import db, User, UserRole
 from flask_jwt_extended import create_access_token, jwt_required
-from utils import bcrypt
+from  lib.utils import bcrypt
 from datetime import timedelta
 
 user_bp = Blueprint("user_bp", __name__)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Numeric, func
-import enums
+import db.enums as enums
 
 db = SQLAlchemy()
 

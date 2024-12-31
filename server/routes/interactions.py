@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Interaction, InteractionType, InteractionOutcome
+from db.models import db, Interaction, InteractionType, InteractionOutcome
 from datetime import datetime
 from flask_jwt_extended import jwt_required
-from utils import invalidate_cache
+from  lib.utils import invalidate_cache
 
 interaction_bp = Blueprint("interaction_bp", __name__)
 

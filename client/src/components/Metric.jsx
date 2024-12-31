@@ -5,13 +5,7 @@ import {
   getPerformanceScores,
 } from "../utils/apis";
 
-import {
-  Container,
-  Typography,
-  Divider,
-  Paper,
-  Grid,
-} from "@mui/material";
+import { Container, Typography, Divider, Paper, Grid } from "@mui/material";
 import Loader from "./Loader";
 import { Bar, Line, Doughnut } from "react-chartjs-2";
 import {
@@ -106,15 +100,33 @@ const Metrics = () => {
     ],
   };
 
+  const colorPalette = [
+    "#66bb6a",
+    "#42a5f5",
+    "#ef5350",
+    "#ffca28",
+    "#ab47bc",
+    "#26a69a",
+    "#8d6e63",
+    "#78909c",
+    "#ec407a",
+    "#7e57c2",
+    "#26c6da",
+    "#9ccc65",
+    "#ffee58",
+  ];
+
   const performanceScoreChartData = {
     labels: performanceScores.map((r) => r.name),
     datasets: [
       {
         label: "Performance Score",
         data: performanceScores.map((r) => r.performance_score),
-        backgroundColor: "#66bb6a",
-        borderColor: "#388e3c",
-        borderWidth: 1,
+        backgroundColor: performanceScores.map(
+          (_, index) => colorPalette[index % colorPalette.length]
+        ),
+        borderColor: "#ffffff",
+        borderWidth: 2,
       },
     ],
   };
