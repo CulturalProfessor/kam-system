@@ -63,15 +63,17 @@ function UserList() {
           User Management
         </Typography>
 
-        <Button
-          variant="contained"
-          color="primary"
-          component={RouterLink}
-          to="/users/new"
-          sx={{ mb: 2 }}
-        >
-          Add New User
-        </Button>
+        {user?.role === "admin" && (
+          <Button
+            variant="contained"
+            color="primary"
+            component={RouterLink}
+            to="/users/new"
+            sx={{ mb: 2 }}
+          >
+            Add New User
+          </Button>
+        )}
       </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 1000 }}>
@@ -86,30 +88,31 @@ function UserList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow
-                key={user.id}
-                sx={{ "& > *": { whiteSpace: "nowrap" } }}
-              >
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>{user.created_at.split("T")[0] || "N/A"}</TableCell>
+            {users.map((u) => (
+              <TableRow key={u.id} sx={{ "& > *": { whiteSpace: "nowrap" } }}>
+                <TableCell>{u.id}</TableCell>
+                <TableCell>{u.name}</TableCell>
+                <TableCell>{u.email}</TableCell>
+                <TableCell>{u.role}</TableCell>
+                <TableCell>{u.created_at.split("T")[0] || "N/A"}</TableCell>
                 <TableCell>
-                  <IconButton
-                    component={RouterLink}
-                    to={`/users/edit/${user.id}`}
-                    color="primary"
-                  >
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleDelete(user.id)}
-                    color="error"
-                  >
-                    <Delete />
-                  </IconButton>
+                  {(user?.role === "admin" || user?.id === u.id) && (
+                    <IconButton
+                      component={RouterLink}
+                      to={`/users/edit/${u.id}`}
+                      color="primary"
+                    >
+                      <Edit />
+                    </IconButton>
+                  )}
+                  {user?.role === "admin" && (
+                    <IconButton
+                      onClick={() => handleDelete(u.id)}
+                      color="error"
+                    >
+                      <Delete />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

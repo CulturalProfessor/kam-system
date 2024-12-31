@@ -37,7 +37,7 @@ Ensure the following tools are installed on your system:
 
 ### 🛠️ **1. Clone the Repository**
 ```bash
-git clone https://github.com/CulturalProfessor/kam-system/edit/main/Readme.md
+git clone https://github.com/CulturalProfessor/kam-system
 cd kam-system
 ```
 

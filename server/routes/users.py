@@ -59,10 +59,14 @@ def get_users_by_currentUserRole(user_id):
             for u in users
             if can_create_user(current_user.role, u.role)
         ]
-        current_app.logger.info(f"Fetched users based on the current user's role: {current_user.role.value}.")
+        current_app.logger.info(
+            f"Fetched users based on the current user's role: {current_user.role.value}."
+        )
         return jsonify(result), 200
     except Exception as e:
-        current_app.logger.error(f"Error fetching users by role for user {user_id}: {str(e)}")
+        current_app.logger.error(
+            f"Error fetching users by role for user {user_id}: {str(e)}"
+        )
         return jsonify({"error": str(e)}), 400
 
 
@@ -95,7 +99,9 @@ def login_user():
 def create_user():
     data = request.get_json()
     try:
-        password_hash = bcrypt.generate_password_hash(data.get("password")).decode("utf-8")
+        password_hash = bcrypt.generate_password_hash(data.get("password")).decode(
+            "utf-8"
+        )
         new_user = User(
             name=data.get("name"),
             email=data.get("email"),
@@ -136,7 +142,9 @@ def create_user():
 def add_role_based_user():
     data = request.get_json()
     try:
-        password_hash = bcrypt.generate_password_hash(data.get("password")).decode("utf-8")
+        password_hash = bcrypt.generate_password_hash(data.get("password")).decode(
+            "utf-8"
+        )
         new_user = User(
             name=data.get("name"),
             email=data.get("email"),
@@ -147,7 +155,9 @@ def add_role_based_user():
 
         db.session.add(new_user)
         db.session.commit()
-        current_app.logger.info(f"New role-based user {new_user.id} created successfully.")
+        current_app.logger.info(
+            f"New role-based user {new_user.id} created successfully."
+        )
         return (
             jsonify(
                 {
@@ -207,7 +217,9 @@ def update_user(user_id):
         current_app.logger.info(f"User {user_id} updated successfully.")
         return jsonify({"message": "User updated"}), 200
     except KeyError as e:
-        current_app.logger.error(f"Invalid role during user update for user {user_id}: {e}")
+        current_app.logger.error(
+            f"Invalid role during user update for user {user_id}: {e}"
+        )
         return jsonify({"error": f"Invalid role"}), 400
     except Exception as e:
         db.session.rollback()

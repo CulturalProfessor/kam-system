@@ -11,7 +11,11 @@ import {
   InputLabel,
   Box,
   Paper,
+  Divider,
+  Avatar,
 } from "@mui/material";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { registerUser } from "../utils/apis";
 import { useUser } from "../hooks/useUser";
 
@@ -49,9 +53,20 @@ function Register() {
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Register
-        </Typography>
+        <Box textAlign="center" sx={{ mb: 2 }}>
+          <Avatar sx={{ bgcolor: "primary.main", mx: "auto", mb: 1 }}>
+            <PersonAddIcon />
+          </Avatar>
+          <Typography variant="h4" align="center" gutterBottom>
+            Create Your Account
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Join the KAM Lead Management System and streamline your workflow.
+          </Typography>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
         <form onSubmit={handleSubmit}>
           <Box sx={{ mb: 3 }}>
             <TextField
@@ -115,6 +130,14 @@ function Register() {
               </Select>
             </FormControl>
           </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <InfoOutlinedIcon color="info" sx={{ mr: 1 }} />
+            <Typography variant="body2" color="text.secondary">
+              Roles define your access level within the system.
+            </Typography>
+          </Box>
+
           <Button
             type="submit"
             variant="contained"

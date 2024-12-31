@@ -7,9 +7,13 @@ import {
   Typography,
   Box,
   Paper,
+  Divider,
 } from "@mui/material";
 import { loginUser } from "../utils/apis";
 import { useUser } from "../hooks/useUser";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import EventNoteIcon from "@mui/icons-material/EventNote";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -33,7 +37,7 @@ function Login() {
 
       const accessToken = data.access_token;
       const userId = data.id;
-      login(userId,accessToken);
+      login(userId, accessToken);
       navigate("/restaurants");
     } catch (error) {
       setError(error.message);
@@ -41,10 +45,37 @@ function Login() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
+    <Container maxWidth="md" sx={{ mt: 8 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Login
+        <Box textAlign="center" sx={{ mb: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            Welcome to <strong>KAM Lead Management System</strong>
+          </Typography>
+          <Typography variant="body1" color="textSecondary">
+            Streamline your restaurant, contact, and interaction management
+            efficiently.
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "space-around", mb: 4 }}>
+          <Box textAlign="center">
+            <RestaurantMenuIcon fontSize="large" color="primary" />
+            <Typography variant="body2">Manage Restaurants</Typography>
+          </Box>
+          <Box textAlign="center">
+            <AccountCircleIcon fontSize="large" color="primary" />
+            <Typography variant="body2">Organize Contacts</Typography>
+          </Box>
+          <Box textAlign="center">
+            <EventNoteIcon fontSize="large" color="primary" />
+            <Typography variant="body2">Track Interactions</Typography>
+          </Box>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Typography variant="h5" align="center" gutterBottom>
+          Login to Your Account
         </Typography>
         <form onSubmit={handleSubmit}>
           <Box sx={{ mb: 3 }}>
