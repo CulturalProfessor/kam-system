@@ -7,19 +7,31 @@ from flask_jwt_extended import JWTManager
 from logging.handlers import RotatingFileHandler
 import logging
 import traceback
-from  lib.config import Config
+from lib.config import Config
 from db.models import db
-from  lib.extensions import cache, jwt, redis_client
+from lib.extensions import cache, jwt, redis_client
 from routes.restaurants import restaurant_bp
 from routes.contacts import contact_bp
 from routes.interactions import interaction_bp
-from routes.users import user_bp
+from routes.users import user_bp, fetch_users
 from routes.health import health_bp
 from apscheduler.schedulers.background import BackgroundScheduler
-from  lib.utils import configure_scheduler
+from lib.utils import configure_scheduler
 
 load_dotenv()
 
+
+def configure_scheduler_for_db(app):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        func=lambda: fetch_users(app),
+        trigger="interval",
+        hours=24,
+        id="fetch_users_job",
+        replace_existing=True,
+        max_instances=3
+    )
+    scheduler.start()
 
 def create_app():
     app = Flask("KAM")
@@ -31,7 +43,7 @@ def create_app():
     Migrate(app, db)
     CORS(app)
     configure_scheduler(app)
-    
+    configure_scheduler_for_db(app)
     try:
         redis_client.ping()
         print("Redis connection successful")
@@ -82,4 +94,3 @@ if __name__ == "__main__":
 
 
 flask_app = create_app()
-

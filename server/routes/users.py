@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from db.models import db, User, UserRole
 from flask_jwt_extended import create_access_token, jwt_required
-from  lib.utils import bcrypt
+from lib.utils import bcrypt
 from datetime import timedelta
 
 user_bp = Blueprint("user_bp", __name__)
@@ -16,6 +16,14 @@ def can_create_user(current_user_role, new_user_role):
         return True
     return False
 
+
+def fetch_users(app):
+    try:
+        with app.app_context():
+            users = User.query.all()
+            app.logger.info(f"Fetched {len(users)} users")
+    except Exception as e:
+        app.logger.error(f"Error in scheduled fetch_users: {str(e)}")
 
 @user_bp.route("/users", methods=["GET"])
 def get_users():
